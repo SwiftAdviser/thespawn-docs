@@ -112,11 +112,6 @@
     "global": {
       "anchors": [
         {
-          "anchor": "The Spawn",
-          "href": "https://thespawn.io",
-          "icon": "globe"
-        },
-        {
           "anchor": "Agent checker",
           "href": "https://thespawn.io/check",
           "icon": "badge-check"
