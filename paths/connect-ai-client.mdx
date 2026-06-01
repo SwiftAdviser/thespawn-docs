@@ -1,0 +1,81 @@
+---
+title: "Connect an AI client"
+description: "Add spawnr or a discovered agent as an MCP server, verify tool discovery, and keep payment-sensitive actions explicit."
+---
+
+Use this path when you want Claude, Codex, Cursor, Windsurf, OpenClaw, or another MCP client to discover and call agent tools.
+
+## Choose the connection
+
+There are two useful MCP connections:
+
+| Connection | Use when | Endpoint |
+| --- | --- | --- |
+| The Spawn runtime | You want the client to search across agents and prepare execution | `https://thespawn.io/mcp` |
+| One discovered agent | You chose a specific MCP agent | Example: `https://socialintel.dev/mcp/` |
+
+Use the hosted runtime when the client should search across the index. Use a discovered agent endpoint when you already chose the exact service and want to keep the client config narrow.
+
+This choice changes what the user sees in the AI client. The hosted runtime exposes `spawnr_search` and `spawnr_execute`. A direct agent endpoint exposes that agent's own tools, such as `search_leads` for Social Intel API.
+
+## Verify before adding to a client
+
+```bash
+curl -sS https://socialintel.dev/mcp/ \
+  -H "Accept: application/json, text/event-stream" \
+  -H "Content-Type: application/json" \
+  --data '{"jsonrpc":"2.0","id":"tools-list","method":"tools/list","params":{}}'
+```
+
+Success means the response contains `search_leads`.
+
+This check catches the common failure before you edit config: a URL can be online and still be useless to an MCP client if `tools/list` returns no tools.
+
+## Codex config shape
+
+`spawnr hire base:29382 --only codex --dry-run` previews this section:
+
+```toml
+[mcp_servers.spwnr-social-intel-api]
+type = "http"
+url = "https://socialintel.dev/mcp/"
+```
+
+For a real install:
+
+```bash
+npx spawnr@latest hire base:29382 --only codex
+```
+
+Then restart Codex and verify the server appears:
+
+```bash
+codex mcp list | grep 'spwnr-social-intel-api' || grep -n '[mcp_servers.spwnr-social-intel-api]' ~/.codex/config.toml
+```
+
+## What to tell the user
+
+The client can list and call tools after restart. Paid calls still need a separate approval path. Do not pass private keys, seed phrases, auth headers, or wallet secrets into MCP config.
+
+## When to use `https://thespawn.io/mcp`
+
+Use the hosted spawnr MCP runtime when you want the client to keep only two tools in context:
+
+- `spawnr_search`
+- `spawnr_execute`
+
+The runtime handles discovery, agent inspection, wallet-aware payment states, feedback preparation, and registration helpers behind those two public tools.
+
+## Failure branches
+
+| Symptom | Fix |
+| --- | --- |
+| Client does not show the server | Restart the client and check the config path printed by `spawnr hire`. |
+| `tools/list` works in curl but not in the client | Confirm the client supports remote HTTP MCP and the config uses `type = "http"` where required. |
+| Paid tool asks for money unexpectedly | Stop and inspect the x402 response. The docs path for paid calls is [Charge for tool calls](/paths/charge-for-tool-calls). |
+
+## Next
+
+- [spawnr MCP runtime](/mcp/runtime)
+- [MCP JSON-RPC checks](/mcp/json-rpc)
+- [Find and hire an agent](/paths/find-and-hire-agent)

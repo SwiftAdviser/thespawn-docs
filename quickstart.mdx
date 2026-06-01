@@ -1,47 +1,170 @@
 ---
-title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+title: "Quickstart: find a working agent"
+description: "Search for a real agent, inspect it, verify its MCP tool, and run a free demo request before installing anything."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
+This quickstart proves the happy path without changing your AI client config. You will search The Spawn, inspect Social Intel API, verify its MCP tool, and run a demo request that does not require payment.
 
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
+<Info>
+Last verified: June 1, 2026. The canonical example is `base:29382`, Social Intel API.
+</Info>
+
+## What you get
+
+By the end, you should have:
+
+- a ranked search result from The Spawn;
+- one inspected agent card;
+- an MCP `tools/list` response containing `search_leads`;
+- one demo response with three preview results;
+- a dry-run MCP config for Codex.
 
 ## Prerequisites
 
-Before you begin, you must have:
+You need Node.js with `npx`, or Bun if you are running the local CLI repo. The commands below use the published package shape:
 
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
+```bash
+npx spawnr@latest --help
+```
 
-## Get started
+## Step 1: Search by job
 
-<Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+```bash
+npx spawnr@latest search "instagram influencer finder" --limit 2 --format json
+```
 
-    ```bash
-    npm install your-package
-    ```
-  </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
+Expected result shape:
 
-    ```bash
-    your-cli init
-    ```
-  </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
+```json
+{
+  "query": "instagram influencer finder",
+  "agents": [
+    {
+      "name": "Social Intel API",
+      "tier": "B",
+      "score": 74,
+      "chain": "base",
+      "id": 29382,
+      "show": "spawnr show base:29382"
+    }
+  ]
+}
+```
 
-    ```bash
-    your-cli start
-    ```
-  </Step>
-</Steps>
+What just happened: The Spawn searched indexed ERC-8004 agents, defaulted to working tiers, and returned the next command inline. You did not need to know what ERC-8004 means yet; you searched by the job.
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+## Step 2: Inspect the agent
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
-</Tip>
+```bash
+npx spawnr@latest show base:29382 --format json
+```
+
+Look for:
+
+```json
+{
+  "name": "Social Intel API",
+  "tier": "B",
+  "score": 74,
+  "mcp_endpoint": "https://socialintel.dev/mcp/",
+  "tools": [
+    {
+      "name": "search_leads"
+    }
+  ],
+  "hire": "spawnr hire base:29382"
+}
+```
+
+Checkpoint: you have a live MCP endpoint and at least one tool name. If the convenience `mcp_endpoint` field is empty, check the `services[]` MCP entry before rejecting the agent.
+
+## Step 3: Verify MCP directly
+
+```bash
+curl -sS https://socialintel.dev/mcp/ \
+  -H "Accept: application/json, text/event-stream" \
+  -H "Content-Type: application/json" \
+  --data '{"jsonrpc":"2.0","id":"tools-list","method":"tools/list","params":{}}'
+```
+
+Expected signal:
+
+```text
+"name":"search_leads"
+```
+
+What just happened: MCP is the tool transport. `tools/list` is the first proof that an AI client can discover callable functionality from this service.
+
+## Step 4: Run the free demo request
+
+```bash
+curl -sS "https://socialintel.dev/v1/search?limit=3&query=fitness&country=US&demo=true"
+```
+
+Expected signal:
+
+```text
+"demo": true
+"demo_result_count": 3
+"public_email": "[available in paid response]"
+```
+
+Checkpoint: the service returned useful preview data without a wallet or payment. This is the strongest first-run path for someone who is not crypto-native.
+
+## Step 5: Preview install into Codex
+
+```bash
+npx spawnr@latest hire base:29382 --only codex --dry-run --format json
+```
+
+Expected result:
+
+```json
+{
+  "agent": {
+    "name": "Social Intel API",
+    "chain": "base",
+    "id": 29382,
+    "mcp_endpoint": "https://socialintel.dev/mcp/"
+  },
+  "server_name": "spwnr-social-intel-api",
+  "installed": [
+    {
+      "tool": "Codex",
+      "path": "~/.codex/config.toml",
+      "status": "dry-run",
+      "config": "[mcp_servers.spwnr-social-intel-api]\ntype = \"http\"\nurl = \"https://socialintel.dev/mcp/\""
+    }
+  ],
+  "skipped": [],
+  "url": "https://thespawn.io/agents/base/29382",
+  "hint": null,
+  "cta": {
+    "description": "Suggested commands:",
+    "commands": [
+      {
+        "command": "spawnr login <token>",
+        "description": "Link this hire to your account"
+      },
+      {
+        "command": "spawnr show base:29382",
+        "description": "Full agent card"
+      }
+    ]
+  }
+}
+```
+
+Dry-run does not write config. The current JSON response includes the target config block under `installed[].config`, plus `skipped`, `hint`, and `cta` metadata. Verify the URL before removing `--dry-run`. To install for real, remove `--dry-run`, then restart Codex and run the printed verification command.
+
+## If you get blocked
+
+| Symptom | Likely cause | Fix |
+| --- | --- | --- |
+| `npx` installs an old version | cached package resolution | Run `npx spawnr@latest ...`. |
+| `mcp_endpoint` is empty | the API convenience field may be null | Check `services[]` for an MCP endpoint, then run `tools/list`. |
+| `tools/list` returns no tools | endpoint is down or changed | Run `spawnr check base:29382`, then report the broken example. |
+| MCP `tools/call` returns 429 | rate limit on the demo bridge | Use the direct demo URL above for first-run proof, then retry later. |
+| Paid call returns 402 | expected x402 behavior | Use demo mode first, then read [Charge for tool calls](/paths/charge-for-tool-calls). |
+
+Need help or want to report a broken example? Use [Telegram](https://t.me/thespawnio), [X](https://x.com/thespawnio), or open an issue in [SwiftAdviser/thespawn-docs](https://github.com/SwiftAdviser/thespawn-docs).

@@ -1,0 +1,49 @@
+---
+title: "Source map"
+description: "Where each docs claim came from and how to refresh it."
+---
+
+These docs are built from code, live endpoints, CLI runs, and prior documentation-pipeline work. When a claim drifts, refresh the source below before rewriting copy.
+
+## Primary sources
+
+| Area | Source |
+| --- | --- |
+| Public app | `https://thespawn.io` |
+| Backend routes | `routes/api.php`, `routes/web.php` in `SwiftAdviser/agentspawn` |
+| Search API | `app/Http/Controllers/Api/V1/SearchController.php` |
+| Agent detail API | `app/Http/Controllers/Api/V1/AgentController.php` |
+| Quality check | `app/Http/Controllers/QualityCheckController.php`, `app/Services/AgentQualityScorerService.php` |
+| spawnr MCP runtime | `app/Services/SpawnrMcpService.php`, `tests/Feature/SpawnrMcpRuntimeTest.php` |
+| Wallet and funding | `PairTokenController.php`, `WalletBalanceController.php`, `FundLinkController.php` |
+| Programmatic registration | `AgentMintController.php`, `ApiKeyAuth.php` |
+| CLI behavior | `~/Projects/thespawn-cli` |
+| Public skill mirror | `public/skill/*` and `thespawnio/skill` |
+
+## Verified first-run example
+
+| Check | Evidence |
+| --- | --- |
+| Search | `GET /api/v1/search?q=instagram%20influencer%20finder&limit=3` returned Social Intel API, `base:29382`. |
+| CLI search | `bun run src/index.ts search "instagram influencer finder" --limit 2 --format json` succeeded in the local CLI repo. |
+| CLI show | `bun run src/index.ts show base:29382 --format json` returned tier B, score 74, and `https://socialintel.dev/mcp/`. |
+| Direct MCP | `tools/list` returned `search_leads`. |
+| Demo request | `GET https://socialintel.dev/v1/search?...&demo=true` returned 3 preview results. |
+| Hosted spawnr MCP | `initialize` returned `spawnr MCP`; `tools/list` returned `spawnr_search` and `spawnr_execute`. |
+| CLI hire dry-run | `spawnr hire base:29382 --only codex --dry-run --format json` returned a Codex MCP config without writing files. The current JSON contract does not include `mcp_handshake`. |
+| x402 | Unpaid API call returned HTTP 402 with a payment-required contract. |
+
+Last verified: June 1, 2026.
+
+## Refresh checklist
+
+1. Re-run the quickstart commands.
+2. Re-run `scripts/smoke-first-run.sh`.
+3. Re-run the high-quality-content-writer gate on changed pages.
+4. Re-run Mintlify local validation.
+5. Update [QA report](/reference/qa-report) with date, commands, and failures.
+
+## Next
+
+- [Adoption journeys](/reference/adoption-journeys)
+- [Pipeline](/reference/pipeline)

@@ -1,0 +1,421 @@
+---
+title: "First agent"
+description: "Deploy a tiny MCP-compatible agent, publish metadata, register it on Base, and verify it with spawnr."
+---
+
+This is the shortest builder path that uses the same surfaces a real indexed agent needs:
+
+```text
+HTTPS service -> metadata URL -> ERC-8004 registration -> The Spawn quality check
+```
+
+It uses Cloudflare Workers for the public HTTPS endpoint and raw `viem` for the onchain transaction. The service is intentionally small: one MCP-style JSON-RPC endpoint with one safe tool.
+
+<Warning>
+Use a dedicated wallet with only the gas you need. Do not paste private keys into chats, issues, docs, or support tickets.
+</Warning>
+
+## 1. Create the service
+
+```bash
+mkdir tiny-thespawn-agent
+cd tiny-thespawn-agent
+bun init -y
+bun add -d wrangler typescript
+mkdir -p src
+```
+
+Create `wrangler.toml`:
+
+```toml
+name = "tiny-thespawn-agent"
+main = "src/index.ts"
+compatibility_date = "2026-06-01"
+```
+
+Create `src/index.ts`:
+
+```ts
+const tool = {
+  name: "echo_context",
+  description: "Echo a short prompt with source context for smoke testing.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      prompt: { type: "string" },
+      source: { type: "string" }
+    },
+    required: ["prompt"]
+  }
+};
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      "content-type": "application/json",
+      "access-control-allow-origin": "*"
+    }
+  });
+}
+
+function metadata(origin: string) {
+  return {
+    name: "Tiny Context Agent",
+    description:
+      "MCP-compatible context echo agent for The Spawn first-run testing. It exposes one safe echo_context tool, returns deterministic text, and is meant to verify metadata, endpoint liveness, and tool-call behavior before building a production agent.",
+    image: `${origin}/icon.svg`,
+    x402Support: false,
+    services: [
+      {
+        name: "MCP",
+        endpoint: `${origin}/mcp`,
+        version: "2025-06-18",
+        description: "JSON-RPC MCP endpoint with initialize, tools/list, and tools/call support.",
+        mcpTools: ["echo_context"]
+      },
+      {
+        name: "web",
+        endpoint: origin,
+        description: "Human-readable status endpoint."
+      }
+    ]
+  };
+}
+
+async function handleMcp(request: Request) {
+  const message = (await request.json()) as any;
+  const id = message.id ?? null;
+
+  if (message.method === "initialize") {
+    return json({
+      jsonrpc: "2.0",
+      id,
+      result: {
+        protocolVersion: "2025-06-18",
+        capabilities: { tools: {} },
+        serverInfo: { name: "tiny-context-agent", version: "0.1.0" }
+      }
+    });
+  }
+
+  if (message.method === "tools/list") {
+    return json({
+      jsonrpc: "2.0",
+      id,
+      result: { tools: [tool] }
+    });
+  }
+
+  if (message.method === "tools/call") {
+    const args = message.params?.arguments ?? {};
+    if (message.params?.name !== "echo_context") {
+      return json({
+        jsonrpc: "2.0",
+        id,
+        error: { code: -32602, message: "Unknown tool" }
+      }, 400);
+    }
+
+    return json({
+      jsonrpc: "2.0",
+      id,
+      result: {
+        content: [
+          {
+            type: "text",
+            text: `prompt=${args.prompt}; source=${args.source ?? "not-provided"}`
+          }
+        ]
+      }
+    });
+  }
+
+  return json({
+    jsonrpc: "2.0",
+    id,
+    error: { code: -32601, message: "Method not found" }
+  }, 404);
+}
+
+export default {
+  async fetch(request: Request): Promise<Response> {
+    const url = new URL(request.url);
+    const origin = url.origin;
+
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        headers: {
+          "access-control-allow-origin": "*",
+          "access-control-allow-methods": "GET,POST,OPTIONS",
+          "access-control-allow-headers": "content-type,accept"
+        }
+      });
+    }
+
+    if (request.method === "GET" && url.pathname === "/") {
+      return new Response("Tiny Context Agent is online.\n", {
+        headers: { "content-type": "text/plain; charset=utf-8" }
+      });
+    }
+
+    if (request.method === "GET" && url.pathname === "/.well-known/agent.json") {
+      return json(metadata(origin));
+    }
+
+    if (request.method === "GET" && url.pathname === "/icon.svg") {
+      return new Response(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><rect width="128" height="128" rx="24" fill="#0f172a"/><path d="M32 70h64M40 46h48M48 94h32" stroke="#31d0aa" stroke-width="10" stroke-linecap="round"/></svg>',
+        { headers: { "content-type": "image/svg+xml" } }
+      );
+    }
+
+    if (request.method === "POST" && url.pathname === "/mcp") {
+      return handleMcp(request);
+    }
+
+    return new Response("Not found\n", { status: 404 });
+  }
+};
+```
+
+Run it locally:
+
+```bash
+bunx wrangler dev --port 8787
+```
+
+In another terminal:
+
+```bash
+curl -sS http://localhost:8787/.well-known/agent.json | jq .
+
+curl -sS http://localhost:8787/mcp \
+  -H "Accept: application/json, text/event-stream" \
+  -H "Content-Type: application/json" \
+  --data '{"jsonrpc":"2.0","id":"tools","method":"tools/list","params":{}}' | jq .
+
+curl -sS http://localhost:8787/mcp \
+  -H "Accept: application/json, text/event-stream" \
+  -H "Content-Type: application/json" \
+  --data '{"jsonrpc":"2.0","id":"call","method":"tools/call","params":{"name":"echo_context","arguments":{"prompt":"hello","source":"first-run"}}}' | jq .
+```
+
+Checkpoint: `tools/list` returns `echo_context`, and `tools/call` returns text containing `prompt=hello`.
+
+## 2. Deploy the service
+
+Wrangler needs a Cloudflare account session before the first deploy:
+
+```bash
+bunx wrangler login
+```
+
+Then deploy:
+
+```bash
+bunx wrangler deploy
+```
+
+The deploy command prints a Worker URL. Save it:
+
+```bash
+export AGENT_ORIGIN="https://tiny-thespawn-agent.YOUR_SUBDOMAIN.workers.dev"
+export AGENT_URI="$AGENT_ORIGIN/.well-known/agent.json"
+```
+
+Verify the public endpoint before minting:
+
+```bash
+curl -sS "$AGENT_URI" | jq .
+
+curl -sS "$AGENT_ORIGIN/mcp" \
+  -H "Accept: application/json, text/event-stream" \
+  -H "Content-Type: application/json" \
+  --data '{"jsonrpc":"2.0","id":"init","method":"initialize","params":{}}' | jq .
+```
+
+If either request fails from your terminal, The Spawn indexer will fail too.
+
+## 3. Register on Base
+
+Install transaction dependencies:
+
+```bash
+bun add viem dotenv
+```
+
+Create `.env`:
+
+```bash
+MINT_PRIVATE_KEY=0xYOUR_PRIVATE_KEY
+AGENT_URI=https://tiny-thespawn-agent.YOUR_SUBDOMAIN.workers.dev/.well-known/agent.json
+```
+
+Keep that file local:
+
+```bash
+printf ".env\nmint-receipt.json\n" >> .gitignore
+chmod 600 .env
+```
+
+Create `mint.ts`:
+
+```ts
+import "dotenv/config";
+import {
+  createPublicClient,
+  createWalletClient,
+  http,
+  parseAbi,
+  parseEventLogs
+} from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { base } from "viem/chains";
+import { writeFileSync } from "node:fs";
+
+const REGISTRY = "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432" as const;
+
+const REGISTRY_ABI = parseAbi([
+  "function register() returns (uint256)",
+  "function setAgentURI(uint256 agentId, string newURI)",
+  "function tokenURI(uint256 tokenId) view returns (string)",
+  "function ownerOf(uint256 tokenId) view returns (address)",
+  "event Registered(uint256 indexed agentId, string agentURI, address indexed owner)"
+]);
+
+async function main() {
+  const privateKey = process.env.MINT_PRIVATE_KEY as `0x${string}` | undefined;
+  const agentURI = process.env.AGENT_URI;
+
+  if (!privateKey) throw new Error("Set MINT_PRIVATE_KEY in .env");
+  if (!agentURI) throw new Error("Set AGENT_URI in .env");
+  if (!agentURI.startsWith("https://")) throw new Error("AGENT_URI must be public HTTPS");
+
+  const account = privateKeyToAccount(privateKey);
+  const walletClient = createWalletClient({ account, chain: base, transport: http() });
+  const publicClient = createPublicClient({ chain: base, transport: http() });
+
+  console.log("Chain:", base.name, `(${base.id})`);
+  console.log("From:", account.address);
+  console.log("Agent URI:", agentURI);
+
+  const tx1 = await walletClient.writeContract({
+    address: REGISTRY,
+    abi: REGISTRY_ABI,
+    functionName: "register",
+    args: []
+  });
+  console.log("register tx:", tx1);
+
+  const receipt1 = await publicClient.waitForTransactionReceipt({ hash: tx1 });
+  const events = parseEventLogs({
+    abi: REGISTRY_ABI,
+    logs: receipt1.logs,
+    eventName: "Registered"
+  });
+  const registered = events[0];
+  if (!registered) throw new Error("No Registered event found");
+
+  const agentId = registered.args.agentId;
+  console.log("agent id:", agentId.toString());
+
+  const tx2 = await walletClient.writeContract({
+    address: REGISTRY,
+    abi: REGISTRY_ABI,
+    functionName: "setAgentURI",
+    args: [agentId, agentURI]
+  });
+  console.log("setAgentURI tx:", tx2);
+
+  const receipt2 = await publicClient.waitForTransactionReceipt({ hash: tx2 });
+
+  const onchainURI = await publicClient.readContract({
+    address: REGISTRY,
+    abi: REGISTRY_ABI,
+    functionName: "tokenURI",
+    args: [agentId]
+  });
+  const owner = await publicClient.readContract({
+    address: REGISTRY,
+    abi: REGISTRY_ABI,
+    functionName: "ownerOf",
+    args: [agentId]
+  });
+
+  if (owner.toLowerCase() !== account.address.toLowerCase()) {
+    throw new Error("ownerOf mismatch");
+  }
+  if (onchainURI !== agentURI) {
+    throw new Error("tokenURI mismatch");
+  }
+
+  const receipt = {
+    chainId: base.id,
+    chainSlug: "base",
+    agentId: agentId.toString(),
+    owner,
+    registry: REGISTRY,
+    agentURI,
+    registerTxHash: tx1,
+    setUriTxHash: tx2,
+    blockNumber: receipt2.blockNumber.toString(),
+    theSpawnUrl: `https://thespawn.io/agents/base/${agentId.toString()}`
+  };
+
+  writeFileSync("mint-receipt.json", JSON.stringify(receipt, null, 2));
+  console.log("verified:", receipt.theSpawnUrl);
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
+```
+
+Run:
+
+```bash
+bun run mint.ts
+```
+
+The wallet needs a small amount of Base ETH for gas before this command runs. Do not use a testnet for this first run. The Spawn indexes mainnet registrations such as Base, not Base Sepolia.
+
+## 4. Verify in The Spawn
+
+The indexer may need a few minutes after the transaction is mined.
+
+```bash
+AGENT_ID="$(jq -r .agentId mint-receipt.json)"
+
+curl -sI "https://thespawn.io/agents/base/$AGENT_ID"
+npx spawnr@latest check "base:$AGENT_ID"
+npx spawnr@latest show "base:$AGENT_ID" --format json
+```
+
+Success means:
+
+| Check | Expected result |
+| --- | --- |
+| Agent page | HTTP 200 after the indexer catches up |
+| Metadata | `name`, `description`, `services`, and `x402Support` are parsed |
+| MCP liveness | `initialize` and `tools/list` can be probed |
+| Callable proof | `echo_context` can be called safely |
+| Quality report | The checker gives exact next fixes instead of a generic failure |
+
+## 5. Improve after first run
+
+The sample proves that the service URL, metadata URL, registry write, and checker can all see the same agent. It is not a production agent. Before announcing it:
+
+1. Replace `echo_context` with a real job-specific tool.
+2. Replace the inline `icon.svg` with your real brand or product asset.
+3. Add request validation, rate limits, and observability.
+4. Add a demo call that proves the shape of paid or authenticated output.
+5. Add x402 only after the paid endpoint returns a valid `402 Payment Required` challenge.
+
+## Next
+
+- [Agent metadata](/builders/metadata)
+- [viem first, ag0 optional](/builders/ag0-and-viem)
+- [Quality scoring](/quality/scoring)
+- [Publish your agent](/paths/publish-your-agent)

@@ -1,0 +1,100 @@
+---
+title: "Hire"
+description: "Probe an agent's MCP server and install it into Claude Code, Cursor, Windsurf, Codex, or OpenClaw."
+---
+
+`spawnr hire` is the command that can write local AI client config. Use `--dry-run` first.
+
+## Dry-run
+
+```bash
+npx spawnr@latest hire base:29382 --only codex --dry-run --format json
+```
+
+Verified output shape:
+
+```json
+{
+  "agent": {
+    "name": "Social Intel API",
+    "chain": "base",
+    "id": 29382,
+    "tier": "B",
+    "score": 74,
+    "mcp_endpoint": "https://socialintel.dev/mcp/"
+  },
+  "server_name": "spwnr-social-intel-api",
+  "installed": [
+    {
+      "tool": "Codex",
+      "path": "~/.codex/config.toml",
+      "status": "dry-run",
+      "config": "[mcp_servers.spwnr-social-intel-api]\ntype = \"http\"\nurl = \"https://socialintel.dev/mcp/\""
+    }
+  ],
+  "skipped": [],
+  "url": "https://thespawn.io/agents/base/29382",
+  "hint": null,
+  "cta": {
+    "description": "Suggested commands:",
+    "commands": [
+      {
+        "command": "spawnr login <token>",
+        "description": "Link this hire to your account"
+      },
+      {
+        "command": "spawnr show base:29382",
+        "description": "Full agent card"
+      }
+    ]
+  }
+}
+```
+
+The dry-run output is the contract to inspect before writing config. It should name the agent, target client, config path, MCP URL, skipped clients, and suggested follow-up commands.
+
+## Client targets
+
+| Target | Flag | Config |
+| --- | --- | --- |
+| Claude Code | `--only claude` | `~/.claude.json` |
+| Cursor | `--only cursor` | `~/.cursor/mcp.json` |
+| Windsurf | `--only windsurf` | `~/.codeium/windsurf/mcp_config.json` |
+| Codex | `--only codex` | `~/.codex/config.toml` |
+| OpenClaw | `--only openclaw` | `~/.openclaw/openclaw.json` |
+
+Without `--only`, `spawnr` detects supported clients and attempts each detected config.
+
+## Real install
+
+```bash
+npx spawnr@latest hire base:29382 --only codex
+```
+
+Restart the client after install. The CLI prints a verification command such as:
+
+```bash
+codex mcp list | grep 'spwnr-social-intel-api' || grep -n '[mcp_servers.spwnr-social-intel-api]' ~/.codex/config.toml
+```
+
+## Pairing and wallet
+
+If the install command includes `--claim <token>`, the CLI redeems a one-time token from thespawn.io, writes the local session file, and checks wallet balance for paid x402 paths.
+
+Local auth file:
+
+```text
+~/.config/spawnr/auth.json
+```
+
+The file should be mode `0600`. Do not paste session tokens into docs, issues, or MCP config.
+
+## Rollback
+
+`spawnr logout` removes the local spawnr session. It does not remove MCP server entries from editor config because those entries belong to the editor. Remove the server block manually if you no longer want the agent connected.
+
+## Next
+
+- [Auth and wallet](/cli/auth-wallet)
+- [Connect an AI client](/paths/connect-ai-client)
+- [Troubleshooting](/reference/troubleshooting)

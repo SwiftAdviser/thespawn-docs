@@ -1,0 +1,37 @@
+---
+title: "Wallet funding"
+description: "Understand the wallet state needed for paid x402 agent calls."
+---
+
+Some agents charge per request. The first-run The Spawn payment path should keep the complexity behind the product:
+
+```text
+You need enough USDC on the chain the paid tool accepts.
+```
+
+For the current first-run path, that usually means Base USDC.
+
+## Check linked wallet
+
+```bash
+npx spawnr@latest whoami --chain base
+```
+
+If linked, the CLI returns wallet address, chain, balance, and symbol. If not linked, copy an install command from thespawn.io while logged in and run `spawnr login <token>`.
+
+## When balance is low
+
+`spawnr hire` and paid-aware CLI flows can return a funding URL when a linked wallet has no balance. Open the link, fund the wallet, wait for settlement, then rerun the same command.
+
+## What not to do
+
+- Do not paste private keys into MCP config.
+- Do not send seed phrases to a support channel.
+- Do not bridge funds unless the payment requirement names that chain and asset.
+- Do not approve paid tool calls when the price, chain, or recipient is unclear.
+
+## Next
+
+- [x402 payments](/payments/x402)
+- [Auth and wallet](/cli/auth-wallet)
+- [Charge for tool calls](/paths/charge-for-tool-calls)

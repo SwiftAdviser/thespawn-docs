@@ -1,55 +1,28 @@
-# Mintlify Starter Kit
+# The Spawn Docs
 
-Use the starter kit to get your docs deployed and ready to customize.
+Mintlify documentation for `docs.thespawn.io`.
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+The docs are organized as an adoption system, not a passive reference. The first screen should help a developer finish one concrete job: find and hire a working agent, connect an AI client, publish an agent, expose a service, charge for tool calls, improve quality, or use The Spawn skill.
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
-
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
-
-## AI-assisted writing
-
-Set up your AI coding tool to work with Mintlify:
+## Local development
 
 ```bash
-npx skills add https://mintlify.com/docs
+npx mintlify dev --port 3004
 ```
 
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
+## Smoke checks
 
-See the [AI tools guides](/ai-tools) for tool-specific setup.
-
-## Development
-
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
-
-```
-npm i -g mint
+```bash
+bash scripts/smoke-first-run.sh
 ```
 
-Run the following command at the root of your documentation, where your `docs.json` is located:
+## Content checks
 
+```bash
+/Users/krutovoy/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 /Users/krutovoy/.codex/skills/high-quality-content-writer/scripts/slop_score.py --file quickstart.mdx --pretty
+/Users/krutovoy/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 /Users/krutovoy/.codex/skills/high-quality-content-writer/scripts/quality_gate.py --file quickstart.mdx --pretty
 ```
-mint dev
-```
 
-View your local preview at `http://localhost:3000`.
+## Source map
 
-## Publishing changes
-
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
-
-## Need help?
-
-### Troubleshooting
-
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
-
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+See `reference/source-map.mdx` for the source of each major product claim and `reference/qa-report.mdx` for validation state.

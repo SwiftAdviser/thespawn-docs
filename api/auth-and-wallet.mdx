@@ -1,0 +1,105 @@
+---
+title: "Auth and wallet APIs"
+description: "Pair a CLI session, read wallet balance, and create funding links."
+---
+
+These endpoints support `spawnr` account linking and wallet readiness. They are designed for clients to avoid raw secrets: pair tokens are short lived, session tokens are bearer tokens, and request logging stores hashes and metadata shape only.
+
+## Pair a CLI session
+
+```http
+POST /api/v1/auth/pair-token
+```
+
+This endpoint is called from an authenticated The Spawn web session. It returns a single-use token:
+
+```json
+{
+  "token": "c_abc123"
+}
+```
+
+Then the CLI claims it:
+
+```http
+POST /api/v1/auth/claim
+```
+
+```bash
+curl -sS https://thespawn.io/api/v1/auth/claim \
+  -H "Content-Type: application/json" \
+  --data '{"token":"c_abc123"}'
+```
+
+Expected shape:
+
+```json
+{
+  "session_token": "st_...",
+  "user_email": "you@example.com",
+  "wallet_address": "0x..."
+}
+```
+
+Pair tokens are single-use and expire after 24 hours. CLI session tokens use the `st_` prefix and expire after 30 days.
+
+## Read wallet balance
+
+```http
+GET /api/wallet/balance
+```
+
+```bash
+curl -sS "https://thespawn.io/api/wallet/balance?chain_id=8453&address=0x1111111111111111111111111111111111111111"
+```
+
+`chain_id` defaults to Base mainnet, `8453`.
+
+## Create a funding link
+
+```http
+POST /api/v1/fund-links
+```
+
+```bash
+curl -sS https://thespawn.io/api/v1/fund-links \
+  -H "Content-Type: application/json" \
+  --data '{
+    "wallet_address": "0x1111111111111111111111111111111111111111",
+    "chain": "base",
+    "amount": 10
+  }'
+```
+
+Expected shape:
+
+```json
+{
+  "code": "abc123",
+  "url": "https://thespawn.io/f/abc123",
+  "status_url": "https://thespawn.io/api/v1/fund-links/abc123/status"
+}
+```
+
+## Check funding status
+
+```http
+GET /api/v1/fund-links/{code}/status
+```
+
+```json
+{
+  "code": "abc123",
+  "status": "pending",
+  "expired": false,
+  "fulfilled": false,
+  "wallet_address": "0x...",
+  "chain": "base",
+  "amount": "10.00"
+}
+```
+
+## Next
+
+- [Wallet funding](/payments/wallet-funding)
+- [spawnr auth](/cli/auth-wallet)

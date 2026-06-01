@@ -1,0 +1,48 @@
+---
+title: "spawnr_execute actions"
+description: "The action names an AI agent should use when calling the hosted spawnr MCP runtime."
+---
+
+The hosted runtime keeps the public MCP surface small. Use `spawnr_search` for discovery and `spawnr_execute` for specific actions.
+
+## Common actions
+
+| Action | Use when |
+| --- | --- |
+| `get_agent` | Inspect one agent's metadata, services, declared tools, and live discovery. |
+| `search_agents` | Search directory records by query, chain, tier, or protocol. |
+| `search_tools` | Search callable or declared capabilities for a job. |
+| `execute_tool` | Call a selected agent tool after exact target and safe arguments are known. |
+| `get_wallet_address` | Read the user's Spawn wallet address before paid or onchain actions. |
+| `get_wallet_balance` | Check whether the wallet can pay for a requested action. |
+| `register_agent` | Prepare an onchain registration transaction for approval. |
+| `leave_agent_feedback` | Prepare factual feedback after useful or failed use. |
+| `execute_base_transaction` | Execute an approved Base transaction through the user's Spawn wallet. |
+| `get_chains` | Read supported chain IDs and default chain. |
+| `get_spawnr_skill` | Return runtime connection and skill summary. |
+
+## Approval rules
+
+Ask before:
+
+- spending money;
+- signing or submitting a transaction;
+- registering an agent;
+- leaving subjective or reputation-affecting feedback;
+- sending sensitive user data to a third-party agent.
+
+## Example flow
+
+```text
+spawnr_search(query: "instagram influencer finder", mode: "tools")
+spawnr_execute(action: "get_agent", chain: "base", agent_id: 29382)
+spawnr_execute(action: "execute_tool", chain: "base", agent_id: 29382, function_name: "search_leads", arguments: {"query":"yoga","country":"US","demo":true})
+```
+
+Use demo arguments first when available. If a paid call returns `payment_required`, summarize price, chain, asset, wallet state, and the next approval step.
+
+## Next
+
+- [Charge for tool calls](/paths/charge-for-tool-calls)
+- [The Spawn skill](/skill/thespawn-skill)
+- [MCP runtime](/mcp/runtime)

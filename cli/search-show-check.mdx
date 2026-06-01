@@ -1,0 +1,54 @@
+---
+title: "Search, show, and check"
+description: "Use spawnr to find candidates, inspect one agent, and audit quality before installing anything."
+---
+
+Use these commands before `hire`. They do not write editor config.
+
+## Search
+
+```bash
+npx spawnr@latest search "instagram influencer finder" --limit 2 --format json
+```
+
+The live API default filters to tiers `S,A,B`. The API enforces `limit` up to `50`; the CLI source currently accepts up to `100`, so docs should treat `50` as the safe public API limit until the surfaces are aligned.
+
+## Show
+
+```bash
+npx spawnr@latest show base:29382 --format json
+```
+
+Accepted input forms include:
+
+```text
+base:29382
+base/29382
+https://thespawn.io/agents/base/29382
+https://socialintel.dev
+```
+
+`show` calls the quality-check path first, resolves the chain and agent ID, then fetches agent detail from `/api/v1/agents/{chain}/{agentId}`. If the agent exposes MCP, it tries `tools/list` and prints discovered tools.
+
+## Check
+
+```bash
+npx spawnr@latest check base:29382 --format json
+```
+
+`check` returns score, tier, metadata/liveness/community breakdown, and fix recommendations. Use it before minting your own agent and after changing metadata or endpoints.
+
+## Failure branches
+
+| Command | Symptom | Fix |
+| --- | --- | --- |
+| `search` | `422 Unknown chain` | Use a supported chain slug such as `base`, `ethereum`, `arbitrum`, `bsc`, `celo`, `tempo`, or `arc`. |
+| `show` | `disambiguation_needed` | Re-run with the specific `chain:id` from candidates. |
+| `check` | `not_found` | Confirm the agent is registered or use a bare service host to trigger host lookup. |
+| any | `402` | Inspect the payment requirement; some premium paths require x402 payment. |
+
+## Next
+
+- [Hire](/cli/hire)
+- [Quality scoring](/quality/scoring)
+- [API search](/api/search)

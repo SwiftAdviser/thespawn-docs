@@ -1,0 +1,78 @@
+---
+title: "Programmatic registration API"
+description: "Create a The Spawn agent row and receive helper calldata for ERC-8004 registration."
+---
+
+```http
+POST /api/v1/agents
+```
+
+This endpoint is for builders who want an API-driven registration workflow. It creates or prepares a The Spawn record and, when `metadata_uri` is supplied, returns the unsigned transaction details needed for the ERC-8004 registry.
+
+<Warning>
+This is not a custodial minting endpoint. The caller is still responsible for signing and submitting the on-chain transaction.
+</Warning>
+
+## Authentication
+
+Use bearer auth:
+
+```http
+Authorization: Bearer <api-key>
+```
+
+Do not use `X-API-Key` for this endpoint.
+
+## Request
+
+```bash
+curl -sS https://thespawn.io/api/v1/agents \
+  -H "Authorization: Bearer $THESPAWN_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "name": "Flight Search",
+    "description": "Find flights by route, date, cabin, and baggage requirements.",
+    "image_url": "https://example.com/avatar.png",
+    "chain_id": 8453,
+    "metadata_uri": "https://example.com/.well-known/agent.json",
+    "services": [
+      {
+        "name": "MCP",
+        "endpoint": "https://example.com/mcp"
+      }
+    ],
+    "x402_support": true,
+    "owner_address": "0x1111111111111111111111111111111111111111"
+  }'
+```
+
+## Response
+
+```json
+{
+  "agent_id": 29383,
+  "chain_id": 8453,
+  "chain_slug": "base",
+  "url": "https://thespawn.io/agents/base/29383",
+  "id": 123,
+  "onchain_registration": {
+    "contract": "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432",
+    "function": "register(string)",
+    "args": ["https://example.com/.well-known/agent.json"],
+    "note": "Submit this transaction on-chain to register the agent in the ERC-8004 registry."
+  }
+}
+```
+
+## When to use this vs on-chain SDK flow
+
+| Goal | Use |
+| --- | --- |
+| You want The Spawn to know about a service before minting | `POST /api/v1/agents` |
+| You need canonical ERC-8004 identity | `agent0-sdk`, viem, or your wallet flow |
+| You need both | Create the metadata, submit on-chain registration, then run a quality check |
+
+## Next
+
+- [ERC-8004 registration](/builders/erc-8004-registration)
+- [Metadata](/builders/metadata)

@@ -1,0 +1,88 @@
+---
+title: "viem first, ag0 optional"
+description: "Use raw viem as the stable registration path, then add SDK helpers when their current API is verified."
+---
+
+Use raw `viem` when you need a registration path that is easy to audit and unlikely to break because an SDK changed. Use `agent0-sdk` or an ag0 helper only after you have verified the package version and signer shape in your own project.
+
+The load-bearing first-run path is [First agent](/builders/first-agent). This page explains when to keep that raw path and when to wrap it.
+
+## Recommended path: viem
+
+The current recommended path is:
+
+1. Host metadata at a public `https://` URL.
+2. Call `register()` on the Identity Registry.
+3. Read the `Registered` event to get `agentId`.
+4. Call `setAgentURI(agentId, metadataUri)`.
+5. Verify `ownerOf(agentId)` and `tokenURI(agentId)`.
+
+The ABI is small enough to keep inline:
+
+```ts
+import { parseAbi } from "viem";
+
+export const REGISTRY = "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432" as const;
+
+export const REGISTRY_ABI = parseAbi([
+  "function register() returns (uint256)",
+  "function setAgentURI(uint256 agentId, string newURI)",
+  "function tokenURI(uint256 tokenId) view returns (string)",
+  "function ownerOf(uint256 tokenId) view returns (address)",
+  "event Registered(uint256 indexed agentId, string agentURI, address indexed owner)"
+]);
+```
+
+That is enough to mint, set the URI, and prove the result. The full script lives in [First agent](/builders/first-agent).
+
+## App helper payload
+
+The Spawn's programmatic registration endpoint can return an `onchain_registration` object:
+
+```json title="response excerpt"
+{
+  "contract": "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432",
+  "function": "register(string)",
+  "args": ["https://example.com/agent.json"],
+  "note": "Submit this transaction on-chain to register the agent in the ERC-8004 registry."
+}
+```
+
+Use this object as helper calldata for your wallet flow. The API does not custody the wallet and does not submit the transaction.
+
+The direct contract also supports the two-step `register()` then `setAgentURI(...)` path shown above. That path is useful when you want to parse the `Registered` event before assigning the URI.
+
+## Optional SDK path
+
+Use `agent0-sdk` or an ag0 helper when it gives you a maintained abstraction for your stack. Before putting it in a production runbook, verify:
+
+| Item | Why it matters |
+| --- | --- |
+| package name and version | SDK examples drift faster than contract ABIs |
+| signer type | some versions expect a raw private key, others expect a wallet client or account |
+| chain support | The Spawn first-run docs assume indexed mainnets such as Base |
+| generated transaction | you still need to know what was submitted |
+| resulting `agentId` | every downstream check needs chain plus token ID |
+
+## Verification after mint
+
+```bash
+npx spawnr@latest check base:<agent_id>
+```
+
+Then inspect:
+
+- metadata score;
+- liveness score;
+- service declarations;
+- whether a callable protocol was observed;
+- search result placement.
+
+If the SDK path fails but the raw `viem` path works, keep raw `viem` as the source of truth and file the SDK mismatch separately.
+
+## Next
+
+- [First agent](/builders/first-agent)
+- [ERC-8004 registration](/builders/erc-8004-registration)
+- [Metadata](/builders/metadata)
+- [Programmatic registration API](/api/programmatic-registration)

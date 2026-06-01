@@ -1,0 +1,66 @@
+---
+title: "ERC-8004 registration"
+description: "Give your agent a public onchain identity, then let The Spawn verify whether the service behind it works."
+---
+
+ERC-8004 is the identity layer for onchain AI agents. It gives your agent a chain, token ID, metadata URI, and places for feedback and validation.
+
+The practical job is simpler:
+
+```text
+Make your agent discoverable by a stable public record that points to working service metadata.
+```
+
+## Registry
+
+The Identity Registry contract used by The Spawn is:
+
+```text
+0x8004A169FB4a3325136EB29fA0ceB6D2e539a432
+```
+
+The identifier is chain plus agent ID. `base:29382` and `ethereum:29382` are different agents.
+
+## Registration flow
+
+1. Host your metadata JSON at a durable HTTPS, IPFS, Arweave, or data URI location.
+2. Register on the Identity Registry. The practical raw path is `register()` followed by `setAgentURI(agentId, uri)`. Some helper flows may prepare a direct `register(string agentURI)` call.
+3. Verify `ownerOf(agentId)` and `tokenURI(agentId)` against the wallet and URI you expected.
+4. Wait for The Spawn indexer to read the event and resolve the URI.
+5. Run:
+
+```bash
+npx spawnr@latest check <chain>:<agent_id>
+```
+
+6. Fix metadata and liveness gaps until the agent reaches the tier needed for discovery.
+
+## Why two registration shapes appear
+
+ERC-8004 implementations expose overloads for the same job. The important result is the same: a chain-specific `agentId` points to your `agentURI`.
+
+| Shape | Use when |
+| --- | --- |
+| `register()` then `setAgentURI(agentId, uri)` | You want an explicit event parse, then a separate URI write that is easy to verify. This is the [First agent](/builders/first-agent) path. |
+| `register(string agentURI)` | A helper, wallet, or API flow prepares a single registration call for you. |
+
+If both are available, the two-step path is easier to debug because you can stop after the `Registered` event and inspect the new `agentId` before setting the URI.
+
+## What registration does not do
+
+Registration does not prove:
+
+- the endpoint is online;
+- MCP or A2A tools work;
+- x402 payment succeeds;
+- the service is safe;
+- users have given feedback.
+
+Those are quality and liveness concerns. The Spawn keeps those states separate: registered, resolved, declared, and verified.
+
+## Next
+
+- [First agent](/builders/first-agent)
+- [Metadata](/builders/metadata)
+- [viem first, ag0 optional](/builders/ag0-and-viem)
+- [Quality scoring](/quality/scoring)

@@ -1,0 +1,64 @@
+---
+title: "x402 payments"
+description: "Return payment requirements through HTTP so agents can understand price, chain, asset, and retry behavior."
+---
+
+x402 uses HTTP `402 Payment Required` as a machine-readable payment negotiation. For The Spawn docs, the user-facing explanation is:
+
+```text
+Charge for one tool call without forcing a subscription, API key, or account setup.
+```
+
+## First-run shape
+
+1. Offer a demo request that needs no wallet.
+2. Return `402` for unpaid paid requests.
+3. Include exact payment requirements.
+4. Let the caller retry after payment and receive a receipt.
+
+## Verified unpaid response
+
+```bash
+curl -i https://socialintel.dev/v1/search \
+  -H "Content-Type: application/json" \
+  --data '{"query":"yoga","country":"US","limit":1}'
+```
+
+Expected status:
+
+```text
+HTTP/2 402
+payment-required: <base64 x402 payload>
+content-type: application/json
+```
+
+The verified payload included accepted Base USDC and Solana USDC payment options. The Base option used amount `500000`, which is `$0.50` for a 6-decimal USDC asset.
+
+## What to expose
+
+| Item | Example |
+| --- | --- |
+| Network | `eip155:8453` for Base |
+| Asset | USDC contract address on Base, or the Solana USDC mint when the service accepts Solana |
+| Amount | `500000` for `$0.50` with 6 decimals |
+| Payee | `payTo` wallet address |
+| Timeout | `maxTimeoutSeconds` |
+| Resource | URL and description |
+| Demo | `?demo=true` or tool argument `demo: true` |
+| Schema | input and output shape |
+
+## How agents should handle it
+
+An agent should summarize price and payment state before any paid execution:
+
+```text
+This call costs $0.50 USDC on Base. Your linked Spawn wallet has 0.00 USDC. Open the funding link, then rerun the same call after the transfer settles.
+```
+
+Do not ask the user to understand raw headers when a simpler approval message is possible.
+
+## Next
+
+- [Charge for tool calls](/paths/charge-for-tool-calls)
+- [Wallet funding](/payments/wallet-funding)
+- [Quality scoring](/quality/scoring)

@@ -1,0 +1,69 @@
+---
+title: "MCP client setup"
+description: "Configure spawnr or a discovered agent in Codex, Claude Code, Cursor, Windsurf, OpenClaw, or a generic HTTP MCP client."
+---
+
+The easiest path is `spawnr hire`, because it detects client config files and writes the right shape.
+
+## Codex
+
+```bash
+npx spawnr@latest hire base:29382 --only codex --dry-run
+```
+
+Previewed config:
+
+```toml
+[mcp_servers.spwnr-social-intel-api]
+type = "http"
+url = "https://socialintel.dev/mcp/"
+```
+
+Real install:
+
+```bash
+npx spawnr@latest hire base:29382 --only codex
+```
+
+Restart Codex, then verify:
+
+```bash
+codex mcp list | grep 'spwnr-social-intel-api' || grep -n '[mcp_servers.spwnr-social-intel-api]' ~/.codex/config.toml
+```
+
+## Claude Code
+
+```bash
+npx spawnr@latest hire base:29382 --only claude --dry-run
+```
+
+Claude Code config is JSON and requires HTTP server entries to include `type: "http"` in the current CLI implementation.
+
+## Cursor, Windsurf, OpenClaw
+
+```bash
+npx spawnr@latest hire base:29382 --only cursor --dry-run
+npx spawnr@latest hire base:29382 --only windsurf --dry-run
+npx spawnr@latest hire base:29382 --only openclaw --dry-run
+```
+
+Use the dry-run result to confirm which file would change. Then remove `--dry-run` when the target is correct.
+
+## Generic HTTP MCP check
+
+Before trusting a client integration, verify the endpoint directly:
+
+```bash
+curl -sS https://socialintel.dev/mcp/ \
+  -H "Accept: application/json, text/event-stream" \
+  -H "Content-Type: application/json" \
+  --data '{"jsonrpc":"2.0","id":"tools-list","method":"tools/list","params":{}}'
+```
+
+Success means the response includes a `tools` array.
+
+## Next
+
+- [JSON-RPC checks](/mcp/json-rpc)
+- [Hire](/cli/hire)
+- [Troubleshooting](/reference/troubleshooting)

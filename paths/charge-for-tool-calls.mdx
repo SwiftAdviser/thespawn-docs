@@ -1,0 +1,71 @@
+---
+title: "Charge for tool calls"
+description: "Expose a demo path, return a useful x402 402 response, and let agents understand price before payment."
+---
+
+Use this path when your service has per-request value and you want agents to pay without API keys, signup, or monthly plans.
+
+## Job
+
+You want a caller to try the service, see the price, pay when ready, and receive a receipt. The caller may not know what x402 is.
+
+Start with the outcome:
+
+```text
+Run a free preview, then show exact payment terms for the paid call.
+```
+
+## Verified example
+
+Social Intel API exposes a paid search endpoint and a free demo path. The demo proves the result shape before a caller sees the x402 payment challenge.
+
+Free direct demo:
+
+```bash
+curl -sS "https://socialintel.dev/v1/search?limit=3&query=fitness&country=US&demo=true"
+```
+
+Unpaid HTTP request:
+
+```bash
+curl -i https://socialintel.dev/v1/search \
+  -H "Content-Type: application/json" \
+  --data '{"query":"yoga","country":"US","limit":1}'
+```
+
+Expected result: HTTP `402` with payment requirements. The verified response included `PAYMENT-REQUIRED`, accepted Base USDC and Solana USDC, amount `500000` base units, and a `payTo` address. The free demo and the paid endpoint should use the same input shape, otherwise the demo does not reduce payment risk.
+
+## What just happened
+
+x402 turns price into an HTTP response. The service does not need to ask the user to create an account first. A client can parse the accepted networks, token, amount, destination, and timeout, then decide whether it is allowed to pay.
+
+The demo comes before the 402 challenge because the buyer needs evidence before wallet policy matters. A good paid endpoint therefore has two proofs: the free response proves output shape, and the unpaid paid request proves exact payment terms.
+
+## The useful 402 body
+
+Your 402 response should include:
+
+| Field | Why |
+| --- | --- |
+| resource URL and description | The caller knows what it is paying for. |
+| accepted networks and assets | Wallet policy can decide whether payment is possible. |
+| base-unit amount | Wallet signing uses exact token units. |
+| `payTo` | The destination is explicit. |
+| demo URL or demo flag | Non-crypto users can preview output. |
+| input/output schema | Agents know how to shape the paid request. |
+| receipt behavior | Callers know what proof they get after payment. |
+
+## Failure branches
+
+| Symptom | Fix |
+| --- | --- |
+| Users bounce before paying | Add a no-wallet demo mode. |
+| Agents cannot parse price | Put exact chain, asset, amount, and `payTo` in the response. |
+| The service returns only text | Return machine-readable JSON for 402. |
+| Users do not have funds | Link to wallet funding and show the exact network, usually Base USDC for first runs. |
+
+## Next
+
+- [x402 payments](/payments/x402)
+- [Wallet funding](/payments/wallet-funding)
+- [Improve quality score](/paths/improve-agent-quality)

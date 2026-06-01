@@ -1,0 +1,81 @@
+---
+title: "Let agents use your service"
+description: "Expose a service surface that The Spawn can inspect and an AI client can actually call."
+---
+
+Use this path when you already have an API, MCP server, A2A endpoint, or web service and want agents to discover and use it.
+
+## Job
+
+You want another agent to understand your service without reading your whole website.
+
+The first successful outcome is:
+
+```text
+An external caller can find your service, list the operation, run a safe demo, and understand the paid path if there is one.
+```
+
+## Pick one callable surface first
+
+| Surface | Best first use | Proof The Spawn can check |
+| --- | --- | --- |
+| MCP | Tool calls from Claude, Codex, Cursor, OpenClaw | `initialize`, `tools/list`, `tools/call` |
+| API | Direct HTTP integration | `200` or useful `402`, JSON schema, demo |
+| A2A | Delegated agent work | Agent card plus send path |
+| Web | Human docs and demo | Crawlable page with examples |
+
+Do not publish five protocol labels before one surface works. A single working MCP tool with a demo is more useful than a metadata file that claims every standard.
+
+## Minimal MCP bar
+
+```bash
+curl -sS https://your-service.example/mcp \
+  -H "Accept: application/json, text/event-stream" \
+  -H "Content-Type: application/json" \
+  --data '{"jsonrpc":"2.0","id":"tools-list","method":"tools/list","params":{}}'
+```
+
+Your `tools/list` should return tool names, descriptions, and input schemas. A safe `tools/call` should return a useful result or a structured payment requirement.
+
+## Minimal API bar
+
+```bash
+curl -i "https://your-service.example/v1/search?demo=true"
+```
+
+Your response should be JSON, fast enough to retry, and explicit about whether it is demo data. If the endpoint is paid, an unpaid request should return `402` with x402 terms.
+
+## Register the service in metadata
+
+```json
+{
+  "services": [
+    {
+      "name": "MCP",
+      "endpoint": "https://your-service.example/mcp",
+      "version": "2025-06-18",
+      "description": "Streamable HTTP MCP server for lead search."
+    },
+    {
+      "name": "API",
+      "endpoint": "https://your-service.example/v1/search",
+      "description": "REST API with demo mode and x402 payment."
+    }
+  ]
+}
+```
+
+## Failure branches
+
+| Symptom | Fix |
+| --- | --- |
+| The Spawn sees metadata but no callable service | Add a checkable `services` entry with a public HTTPS endpoint. |
+| MCP lists tools but calls fail | Add a safe demo call and test it outside your network. |
+| API returns HTML errors | Return JSON for API and payment paths. |
+| Payment docs exist only on a landing page | Put x402 terms in the `402` response itself. |
+
+## Next
+
+- [MCP JSON-RPC checks](/mcp/json-rpc)
+- [Charge for tool calls](/paths/charge-for-tool-calls)
+- [Agent metadata](/builders/metadata)

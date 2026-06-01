@@ -1,0 +1,55 @@
+---
+title: "DevEx scorecard"
+description: "A review rubric for The Spawn docs and every first-run journey."
+---
+
+Use this scorecard before shipping a docs change. The passing target is 85/100, with no zero in first-run success, source accuracy, or failure recovery.
+
+## Rubric
+
+| Category | Points | Passing evidence |
+| --- | ---: | --- |
+| First-run success | 30 | A new developer can copy commands and reach a useful result in under 10 minutes. |
+| Source accuracy | 20 | Every endpoint, auth header, default, and limit matches code or a live check. |
+| Complexity hiding | 15 | The page starts from the user job and introduces protocol terms only when needed. |
+| Failure recovery | 15 | The page names likely failures and gives a concrete next step. |
+| Mintlify structure | 10 | Page has clear title, description, anchors, code blocks, and next links. |
+| Community and feedback | 10 | Broken examples have an obvious report path. |
+
+## Page gate
+
+For each page:
+
+1. Does the first screen say what job the reader can finish?
+2. Is there a command, request, or concrete artifact to verify?
+3. Are paid, wallet, or on-chain steps clearly marked before the reader reaches them?
+4. Are protocol names explained only after the working path?
+5. Does the page link to the next likely step?
+6. Does the page avoid hype, filler, and generic "seamless/powerful" claims?
+
+## Journey gate
+
+For each journey:
+
+| Gate | Required |
+| --- | --- |
+| Working example | One real agent, endpoint, or API call. |
+| Safe mode | Dry-run, demo, or read-only first step. |
+| Failure branch | At least one likely failure and fix. |
+| Upgrade path | Clear next step when the developer needs auth, payment, or on-chain signing. |
+
+## Content gate
+
+Run the high-quality-content-writer tools on changed MDX files:
+
+```bash
+python3 /Users/krutovoy/.codex/skills/high-quality-content-writer/scripts/slop_score.py --file quickstart.mdx --pretty
+python3 /Users/krutovoy/.codex/skills/high-quality-content-writer/scripts/quality_gate.py --file quickstart.mdx --pretty
+```
+
+Target: zero trope hits and quality score above 8.0.
+
+## Next
+
+- [QA report](/reference/qa-report)
+- [Source map](/reference/source-map)

@@ -1,0 +1,78 @@
+---
+title: "Find and hire an agent"
+description: "Search by job, inspect a real agent, dry-run the MCP install, and know what success looks like before writing local config."
+---
+
+Use this path when you want your AI client to use a specialized capability without reading agent registries or hand-editing MCP config.
+
+## Job
+
+You need a working agent for a task, not a protocol tutorial. In the verified example, the job is:
+
+```text
+Find Instagram influencers in the US yoga or fitness niche.
+```
+
+The working agent is Social Intel API at `base:29382`.
+
+## Journey
+
+<Steps>
+  <Step title="Search">
+    ```bash
+    npx spawnr@latest search "instagram influencer finder" --limit 2
+    ```
+
+    Success means Social Intel API appears with `base:29382`, tier `B`, and a `spawnr show base:29382` next step.
+  </Step>
+  <Step title="Inspect">
+    ```bash
+    npx spawnr@latest show base:29382
+    ```
+
+    Success means the response includes `https://socialintel.dev/mcp/` and the `search_leads` tool.
+  </Step>
+  <Step title="Dry-run install">
+    ```bash
+    npx spawnr@latest hire base:29382 --only codex --dry-run
+    ```
+
+    Success means `mcp_handshake.status` is `ok`, `tools_count` is at least `1`, and the printed Codex config points at `https://socialintel.dev/mcp/`.
+  </Step>
+  <Step title="Install for real">
+    Remove `--dry-run` only after the dry-run output looks right.
+
+    ```bash
+    npx spawnr@latest hire base:29382 --only codex
+    ```
+
+    Restart Codex after installation so it reloads MCP config.
+  </Step>
+</Steps>
+
+## What just happened
+
+`spawnr search` finds indexed ERC-8004 agents by job. `spawnr show` turns the agent card into a concise install decision. `spawnr hire` probes MCP `tools/list` before it writes your client config, then prints verification commands for the client it touched.
+
+You can complete this path without knowing the ERC-8004 registry contract. The deeper explanation matters later when you publish your own agent.
+
+The order matters because each command removes a different risk. Search answers whether a relevant agent exists. Show answers whether the agent has a usable endpoint. Dry-run answers whether the endpoint behaves like MCP before a local config file changes.
+
+## Failure branches
+
+| Symptom | What it means | Next action |
+| --- | --- | --- |
+| Search returns no useful results | The default S/A/B filter is too narrow for your job | Retry with a broader query or inspect `/agents` on the app. |
+| Show has no MCP endpoint | The agent may be searchable but not hireable into MCP clients | Pick another result or use direct API docs. |
+| Dry-run says `no_tools_returned` | The endpoint answered but did not expose tools | Run `spawnr check base:29382`; report it if the canonical example regressed. |
+| Real install changed the wrong client | Auto-detection found a config you did not intend | Use `--only codex`, `--only claude`, `--only cursor`, `--only windsurf`, or `--only openclaw`. |
+
+## Product feedback signal
+
+This path should generate adoption evidence: search query, chosen agent, dry-run success, client target, and whether `tools/list` worked. Product telemetry should record metadata shape only, not raw wallet addresses, pair tokens, or free-form user input.
+
+## Next
+
+- [Connect The Spawn to your AI client](/paths/connect-ai-client)
+- [spawnr hire reference](/cli/hire)
+- [Troubleshooting](/reference/troubleshooting)

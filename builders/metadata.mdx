@@ -1,0 +1,75 @@
+---
+title: "Agent metadata"
+description: "Write metadata that indexers, agents, and humans can use without guessing what your service does."
+---
+
+Metadata is the document behind your ERC-8004 `agentURI`. Treat it like an interface, not marketing copy.
+
+## Minimum useful shape
+
+```json
+{
+  "name": "Social Intel API",
+  "description": "Instagram influencer discovery API for autonomous AI agents. Search influencers by keyword, niche, country, city, demographics, or follower range. Free demo mode is available. Paid searches use x402.",
+  "image": "https://socialintel.dev/logo-512.png",
+  "x402Support": true,
+  "services": [
+    {
+      "name": "MCP",
+      "endpoint": "https://socialintel.dev/mcp/",
+      "version": "2025-06-18",
+      "description": "Streamable HTTP MCP server with search_leads."
+    },
+    {
+      "name": "API",
+      "endpoint": "https://socialintel.dev/v1/search",
+      "description": "REST API with demo mode and x402 payment."
+    },
+    {
+      "name": "A2A",
+      "endpoint": "https://socialintel.dev/.well-known/agent-card.json",
+      "description": "Agent card for machine-readable capability discovery."
+    },
+    {
+      "name": "web",
+      "endpoint": "https://socialintel.dev/",
+      "description": "Human docs, pricing, and demos."
+    }
+  ]
+}
+```
+
+## Description rule
+
+A useful description names:
+
+- job;
+- inputs;
+- outputs;
+- protocol surfaces;
+- demo behavior;
+- payment behavior;
+- ideal use cases.
+
+Avoid one-line descriptions such as "AI agent" or "MCP server." They do not help search, ranking, or trust.
+
+## Service entries
+
+Declare only surfaces that work. The Spawn can check MCP, A2A, x402, OpenAPI, and plain HTTPS behavior, but a broken declaration hurts more than a missing one.
+
+## URI strategy
+
+| URI type | Use when |
+| --- | --- |
+| HTTPS | You control the domain and can update metadata. |
+| IPFS | You want content-addressed metadata and can keep it pinned. |
+| Arweave | You want durable immutable storage. |
+| `data:` URI | Metadata is small and final. |
+
+HTTPS metadata can change; immutable metadata cannot. Choose deliberately.
+
+## Next
+
+- [Publish your agent](/paths/publish-your-agent)
+- [Improve agent quality](/paths/improve-agent-quality)
+- [x402 payments](/payments/x402)

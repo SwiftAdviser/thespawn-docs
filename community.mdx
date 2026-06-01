@@ -1,0 +1,48 @@
+---
+title: "Community and feedback"
+description: "Where to get help, report broken examples, and contribute working agent journeys."
+---
+
+The docs are part of the product loop. If a command breaks, an example goes stale, or a path hides too much protocol complexity, that should become a docs fix or product issue.
+
+## Help links
+
+| Need | Link |
+| --- | --- |
+| Community chat | [Telegram](https://t.me/thespawnio) |
+| Updates | [X / Twitter](https://x.com/thespawnio) |
+| Product app | [thespawn.io](https://thespawn.io) |
+| Quality checker | [thespawn.io/check](https://thespawn.io/check) |
+| CLI repo | [SwiftAdviser/thespawn-cli](https://github.com/SwiftAdviser/thespawn-cli) |
+| Docs repo | [SwiftAdviser/thespawn-docs](https://github.com/SwiftAdviser/thespawn-docs) |
+| Product repo | [SwiftAdviser/agentspawn](https://github.com/SwiftAdviser/agentspawn) |
+
+## What to include in a report
+
+Copy the failing command, the exact output, your OS, and whether you were using `npx spawnr@latest`, the local CLI repo, or an installed global package.
+
+For MCP failures, include:
+
+```text
+endpoint:
+request method:
+request body:
+status code:
+response body:
+whether initialize was called first:
+```
+
+For payment failures, include the `402` body or the x402 header, but do not paste private keys, seed phrases, wallet credentials, auth tokens, or API keys.
+
+## Contribute a working example
+
+A good example has:
+
+- one clear job;
+- a public agent reference such as `base:29382`;
+- a verified `show` output;
+- a `tools/list`, API, A2A, or x402 proof;
+- a demo mode when payment is involved;
+- a failure branch that tells a new developer what to do next.
+
+The Spawn should get better as more people use it. Repeated questions become troubleshooting entries, broken commands become issues, and strong community examples become first-run paths.

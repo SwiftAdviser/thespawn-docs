@@ -1,0 +1,106 @@
+---
+title: "Docs pipeline"
+description: "The reusable prompt and subagent pipeline used to build The Spawn docs."
+---
+
+This pipeline adapts the Mandate docs playbook: separate Mintlify repo, explicit source map, parallel subagents, per-page writer packets, isolated QA, and content-quality gates.
+
+## Pipeline
+
+1. Inventory source truth from app routes, controllers, tests, the CLI repo, the public skill mirror, live endpoints, and deployment settings.
+2. Define developer journeys before information architecture, because a protocol-first sidebar hides the first successful action.
+3. Assign subagents by surface: CLI/MCP, API/ERC-8004/x402, skill/public docs, pipeline recovery, and DevEx scoring.
+4. Give each writer a packet with the customer job, sources, constraints, verified example, page contract, and cross-links.
+5. Build pages in the Mintlify repo and keep source-heavy notes in reference pages instead of spreading uncertainty through quickstarts.
+6. Run smoke checks against live examples, especially Social Intel API `base:29382` and the hosted spawnr MCP runtime.
+7. Run Mintlify locally so broken navigation and MDX errors are caught before deployment.
+8. Run the DevEx scorecard and high-quality-content-writer gates, then treat failures as either content issues or code-block false positives.
+9. Iterate until the score is acceptable and every P0 journey has a command, expected signal, failure branch, and next step.
+10. Push the docs repo and wire the main product to the new docs domain.
+
+## Writer packet template
+
+```text
+You are writing one The Spawn docs page.
+
+CUSTOMER JOB:
+<what the developer is trying to finish>
+
+PRIMARY READER:
+<agent consumer | agent builder | service provider | monetizer | quality improver>
+
+SOURCES:
+<exact files, commands, live endpoints, and prior notes>
+
+VERIFIED EXAMPLE:
+<copy-paste command and expected signal>
+
+CONSTRAINTS:
+- Start from the user's job, not protocol terminology.
+- Keep x402, ERC-8004, MCP, wallet, and on-chain details progressive.
+- Use exact endpoints and auth headers from code.
+- Include failure recovery that names the likely broken surface and the next command to run.
+- End with next steps that move to a neighboring job, not a generic conclusion.
+- No hype, filler, or unsupported claims.
+
+PAGE CONTRACT:
+- Mintlify frontmatter with title and description.
+- Include one runnable example where the product surface makes that possible.
+- Include one expected response shape or checkpoint so the reader can tell whether the step worked.
+- Link to adjacent pages that explain the next likely job.
+```
+
+## Final implementation prompt
+
+```text
+Take the SwiftAdviser/thespawn-docs Mintlify repo and build a developer-adoption docs system for The Spawn.
+
+Goal: make a new agent developer successful on their first run, then guide them into deeper product paths: spawnr MCP, spawnr CLI, quickstarts, creating and managing agents with agent0/ag0 SDK or viem, ERC-8004 registration, x402 paid tools, The Spawn skill, quality scoring, wallet funding, and community contribution.
+
+Start from customer jobs, not protocol names:
+1. Find and hire a working agent.
+2. Connect an AI client to The Spawn.
+3. Publish an ERC-8004 agent.
+4. Let agents use my service.
+5. Charge for tool calls.
+6. Improve my quality score.
+7. Use The Spawn skill inside coding agents.
+
+Use subagents aggressively:
+- Source-truth scout: map routes, controllers, tests, CLI behavior, and live endpoint evidence.
+- CLI/MCP scout: run first-run search/show/hire dry-run and direct MCP checks.
+- API/ERC/x402 scout: verify endpoints, auth, quality scoring, payment challenge contract, and registration split.
+- Skill scout: compare public skill files with docs and flag drift.
+- Page writers: one journey or reference area each, using writer packets.
+- DevRel reviewer: act as a DevRel lead with 10 years of developer adoption experience; score every journey with a written rubric.
+- Content reviewer: run high-quality-content-writer on every changed page and require clean prose.
+
+Quality bar:
+- Every first-run journey must have a working command, expected signal, failure branch, and next step.
+- Hide complexity without hiding value: explain x402, ERC-8004, on-chain agents, and MCP only after the reader has a concrete result.
+- Use real examples, especially Social Intel API `base:29382`, only if the live checks pass.
+- Document known limits and drift instead of smoothing over them.
+- Wire docs.thespawn.io from the main thespawn.io product.
+- Leave a QA report with commands, scores, blockers, and deployment state.
+```
+
+## Review prompt
+
+```text
+Review these docs as a DevRel lead with 10 years of experience launching developer platforms.
+
+Score each journey from 0 to 100 using:
+- First-run success: 30
+- Source accuracy: 20
+- Complexity hiding: 15
+- Failure recovery: 15
+- Mintlify structure: 10
+- Community and feedback: 10
+
+List P0/P1/P2 issues with file paths and exact fixes. Then identify the one change most likely to improve developer adoption this week.
+```
+
+## Next
+
+- [DevEx scorecard](/reference/devex-scorecard)
+- [Source map](/reference/source-map)

@@ -1,0 +1,56 @@
+---
+title: "Agent detail API"
+description: "Fetch the service endpoints and quality signals needed before installing or calling an agent."
+---
+
+```http
+GET /api/v1/agents/{chain}/{agentId}
+```
+
+Use this endpoint after search. It returns the agent record that `spawnr show` needs to decide whether an agent can be installed into a client.
+
+## Example
+
+```bash
+curl -sS https://thespawn.io/api/v1/agents/base/29382
+```
+
+Expected shape:
+
+```json
+{
+  "agent_id": 29382,
+  "chain_id": 8453,
+  "chain_slug": "base",
+  "name": "Social Intel API",
+  "quality_tier": "B",
+  "quality_score": 73.7,
+  "mcp_endpoint": null,
+  "services": [
+    {
+      "name": "MCP",
+      "endpoint": "https://socialintel.dev/mcp/"
+    }
+  ],
+  "url": "https://thespawn.io/agents/base/29382"
+}
+```
+
+## Fields to trust first
+
+| Field | Use it for |
+| --- | --- |
+| `services` | All declared service surfaces: MCP, A2A, API, x402, web, docs. Use the MCP service entry when `mcp_endpoint` is null. |
+| `mcp_endpoint` | Legacy convenience field. It may be null even when `services[]` contains an MCP endpoint. |
+| `quality_tier` | Ranking filter. Treat it as a signal, not a replacement for a live check. |
+| `quality_score` | Numeric quality score rounded to one decimal place. |
+| `url` | Human inspection page on The Spawn. |
+
+## Failure
+
+Unknown chains return `422`. Missing agents return `404`.
+
+## Next
+
+- [Quality check](/api/quality-check)
+- [Hire with spawnr](/cli/hire)

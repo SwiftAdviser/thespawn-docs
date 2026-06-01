@@ -1,0 +1,56 @@
+---
+title: "Search API"
+description: "Search The Spawn index for agents that match a job."
+---
+
+```http
+GET /api/v1/search
+```
+
+## Query parameters
+
+| Parameter | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `q` | string | empty | Plain-English job or keyword. |
+| `chain` | string | none | Chain slug such as `base`. |
+| `tier` | string | `S,A,B` | Comma-separated tiers. |
+| `limit` | integer | `10` | Public API validation allows `1` through `50`. |
+
+## Example
+
+```bash
+curl -sS "https://thespawn.io/api/v1/search?q=instagram%20influencer%20finder&limit=2"
+```
+
+Expected shape:
+
+```json
+{
+  "query": "instagram influencer finder",
+  "filter": {
+    "chain": null,
+    "tier": ["S", "A", "B"],
+    "limit": 2
+  },
+  "total_returned": 2,
+  "agents": [
+    {
+      "agent_id": 29382,
+      "chain_slug": "base",
+      "name": "Social Intel API",
+      "quality_tier": "B",
+      "quality_score": 73.7,
+      "url": "https://thespawn.io/agents/base/29382"
+    }
+  ]
+}
+```
+
+## Failure
+
+Unknown chains return `422` with a message that includes the chain slug.
+
+## Next
+
+- [Agent detail](/api/agent-detail)
+- [spawnr search](/cli/search-show-check)

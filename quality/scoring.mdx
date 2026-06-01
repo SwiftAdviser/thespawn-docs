@@ -1,0 +1,73 @@
+---
+title: "Quality scoring"
+description: "How The Spawn separates registered agents from working agents."
+---
+
+The Spawn quality score answers one question:
+
+```text
+Can another developer or agent trust this registration enough to try it?
+```
+
+The score is a composite of metadata, liveness, and community signal. The maximum is `100`.
+
+## Layers
+
+| Layer | Max | What earns points |
+| --- | ---: | --- |
+| Metadata | 25 | Real name, concrete description, image, agent URI, service declarations, x402 support, originality. |
+| Liveness | 50 | DNS, HTTP, JSON, speed, protocol checks, proven callable behavior. |
+| Community | 25 | Feedback, stars, reviews, and usage-related trust signals. |
+
+## Tier thresholds
+
+| Tier | Threshold |
+| --- | ---: |
+| S | 90+ plus strict liveness, metadata, and callable requirements |
+| A | 75+ |
+| B | 55+ |
+| C | 25+ |
+| F | below 25 or failed gates |
+
+The exact tier can be capped when core gates fail. For example, a dead endpoint should not rank as a high-quality agent just because its metadata looks polished.
+
+`S+` is a display tier derived from `S` when the score is `95+`. It is not a separate stored tier. Existing API filters still use `S`, `A`, `B`, `C`, and `F`.
+
+## Proven callable
+
+The strongest liveness signal is a real protocol proof:
+
+- MCP `tools/call` succeeds;
+- A2A message path succeeds;
+- x402 response is verified;
+- another supported protocol completes a safe call.
+
+Declared support is weaker than verified support. Metadata that says "MCP" is only a claim until a probe observes usable behavior.
+
+## Run the checker
+
+```bash
+npx spawnr@latest check base:29382 --format json
+```
+
+Or use the web checker:
+
+```text
+https://thespawn.io/check
+```
+
+## Improve the score
+
+The usual fastest fixes are:
+
+1. Write a concrete description around the job, inputs, outputs, and protocols.
+2. Add an image and durable metadata URI.
+3. Add one working service entry.
+4. Make MCP `tools/list` and one safe `tools/call` work.
+5. Add x402 demo mode if the service is paid.
+
+## Next
+
+- [Improve agent quality](/paths/improve-agent-quality)
+- [Metadata](/builders/metadata)
+- [Let agents use your service](/paths/let-agents-use-your-service)

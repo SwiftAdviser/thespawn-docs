@@ -1,53 +1,133 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mintlify Starter Kit",
+  "name": "The Spawn Docs",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#1F6FEB",
+    "light": "#31D0AA",
+    "dark": "#0F172A"
   },
   "favicon": "/favicon.svg",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
   "navigation": {
     "pages": [
       {
-        "group": "Getting Started",
+        "group": "Start",
         "pages": [
           "index",
-          "quickstart"
+          "quickstart",
+          "community"
+        ]
+      },
+      {
+        "group": "Developer paths",
+        "pages": [
+          "paths/find-and-hire-agent",
+          "paths/connect-ai-client",
+          "paths/publish-your-agent",
+          "paths/let-agents-use-your-service",
+          "paths/charge-for-tool-calls",
+          "paths/improve-agent-quality",
+          "paths/use-thespawn-skill"
+        ]
+      },
+      {
+        "group": "spawnr CLI",
+        "pages": [
+          "cli/overview",
+          "cli/search-show-check",
+          "cli/hire",
+          "cli/auth-wallet"
+        ]
+      },
+      {
+        "group": "spawnr MCP",
+        "pages": [
+          "mcp/runtime",
+          "mcp/client-setup",
+          "mcp/json-rpc",
+          "mcp/actions"
+        ]
+      },
+      {
+        "group": "Build agents",
+        "pages": [
+          "builders/first-agent",
+          "builders/erc-8004-registration",
+          "builders/metadata",
+          "builders/ag0-and-viem",
+          "quality/scoring"
+        ]
+      },
+      {
+        "group": "Payments",
+        "pages": [
+          "payments/x402",
+          "payments/wallet-funding"
+        ]
+      },
+      {
+        "group": "API",
+        "pages": [
+          "api/overview",
+          "api/search",
+          "api/agent-detail",
+          "api/quality-check",
+          "api/auth-and-wallet",
+          "api/programmatic-registration"
+        ]
+      },
+      {
+        "group": "Reference",
+        "pages": [
+          "skill/thespawn-skill",
+          "reference/troubleshooting",
+          "reference/source-map",
+          "reference/adoption-journeys",
+          "reference/devex-scorecard",
+          "reference/pipeline",
+          "reference/qa-report"
         ]
       }
     ],
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "anchor": "The Spawn",
+          "href": "https://thespawn.io",
+          "icon": "globe"
         },
         {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "Agent checker",
+          "href": "https://thespawn.io/check",
+          "icon": "badge-check"
+        },
+        {
+          "anchor": "GitHub",
+          "href": "https://github.com/SwiftAdviser",
+          "icon": "github"
         }
       ]
     }
   },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "label": "Community",
+        "href": "https://t.me/thespawnio"
+      },
+      {
+        "label": "X",
+        "href": "https://x.com/thespawnio"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.mintlify.com"
+      "label": "Open app",
+      "href": "https://thespawn.io"
     }
   },
   "contextual": {
@@ -64,9 +144,8 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://x.com/thespawnio",
+      "github": "https://github.com/SwiftAdviser"
     }
   }
 }

@@ -1,0 +1,68 @@
+---
+title: "MCP JSON-RPC checks"
+description: "Verify initialize, tools/list, and one safe tools/call before you treat an MCP endpoint as working."
+---
+
+MCP metadata is not execution proof. A working endpoint should answer tool discovery. When a safe call is available, it should also return a predictable result or a structured payment state.
+
+## Tool discovery
+
+```bash
+curl -sS https://socialintel.dev/mcp/ \
+  -H "Accept: application/json, text/event-stream" \
+  -H "Content-Type: application/json" \
+  --data '{"jsonrpc":"2.0","id":"tools-list","method":"tools/list","params":{}}'
+```
+
+Expected signal:
+
+```text
+"name":"search_leads"
+```
+
+## Hosted runtime call
+
+```bash
+curl -sS https://thespawn.io/mcp \
+  -H "Accept: application/json, text/event-stream" \
+  -H "Content-Type: application/json" \
+  --data '{"jsonrpc":"2.0","id":"search","method":"tools/call","params":{"name":"spawnr_search","arguments":{"query":"instagram influencer finder","limit":2}}}'
+```
+
+Expected signal:
+
+```text
+"Social Intel API"
+"base"
+```
+
+For Social Intel API itself, the direct MCP `tools/list` check is the stable first-run probe. Its demo bridge can rate-limit `tools/call`; the direct demo request in [Quickstart](/quickstart) is the current no-payment output proof.
+
+## Initialize
+
+Some HTTP MCP servers require `initialize` before `tools/list`.
+
+```bash
+curl -sS https://example.com/mcp \
+  -H "Accept: application/json, text/event-stream" \
+  -H "Content-Type: application/json" \
+  --data '{"jsonrpc":"2.0","id":"init","method":"initialize","params":{"protocolVersion":"2024-11-05","clientInfo":{"name":"spawnr-docs","version":"1"},"capabilities":{}}}'
+```
+
+If the server returns `Mcp-Session-Id`, send that header on later requests to the same endpoint.
+
+## Quality interpretation
+
+| State | Meaning |
+| --- | --- |
+| Declared MCP | Metadata says there is an MCP endpoint. |
+| Listed tools | `tools/list` returned at least one tool. |
+| Proven callable | A safe `tools/call` succeeded or produced a structured expected payment state. |
+
+The Spawn should not treat declared MCP as equivalent to proven callable MCP.
+
+## Next
+
+- [spawnr MCP runtime](/mcp/runtime)
+- [Let agents use your service](/paths/let-agents-use-your-service)
+- [Improve agent quality](/paths/improve-agent-quality)

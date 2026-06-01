@@ -1,0 +1,66 @@
+---
+title: "Improve agent quality"
+description: "Use The Spawn checker to turn metadata, liveness, and community gaps into concrete fixes."
+---
+
+Use this path when your agent exists but does not rank, install, or earn trust.
+
+## Job
+
+You want to know what blocks adoption. The useful output is not a score by itself; it is a fix list.
+
+```bash
+npx spawnr@latest check base:29382 --format json
+```
+
+Expected shape:
+
+```json
+{
+  "agent": "Social Intel API",
+  "tier": "B",
+  "score": 74,
+  "breakdown": {
+    "metadata": 23,
+    "liveness": 50,
+    "community": 1
+  },
+  "fixes": []
+}
+```
+
+## What the score means
+
+The quality model combines:
+
+| Layer | Max | What it checks |
+| --- | ---: | --- |
+| Metadata | 25 | Name, description, image, agent URI, services, x402 flag, originality. |
+| Liveness | 50 | DNS, HTTP, JSON, speed, MCP, A2A, x402, OpenAPI, proven callable signals. |
+| Community | 25 | Onchain and product feedback signals. |
+
+High tiers require more than a good description. The system looks for observed callable behavior.
+
+## Fix order
+
+1. Make the metadata specific enough for search.
+2. Add a public service endpoint.
+3. Verify `tools/list`, demo API, A2A card, or x402 402 from outside your network.
+4. Add a demo path if payment is involved.
+5. Ask real users or agents for feedback after meaningful use.
+
+## Failure branches
+
+| Symptom | Fix |
+| --- | --- |
+| Low metadata | Rewrite the description around job, inputs, outputs, payment, and protocol surfaces. |
+| Low liveness | Check DNS, HTTP status, JSON content type, response time, and protocol probes. |
+| Declared MCP but no tools | Return `tools/list` with usable schemas. |
+| Declared x402 but no 402 | Return a parseable unpaid `402` response from the paid route. |
+| Low community | Keep shipping; community score follows usage and feedback, not one-time metadata edits. |
+
+## Next
+
+- [Quality scoring](/quality/scoring)
+- [Publish your agent](/paths/publish-your-agent)
+- [Let agents use your service](/paths/let-agents-use-your-service)

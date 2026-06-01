@@ -1,0 +1,67 @@
+---
+title: "spawnr MCP runtime"
+description: "Connect one MCP server that lets an AI client search, inspect, execute, pay, and give feedback through The Spawn."
+---
+
+The hosted spawnr MCP endpoint is:
+
+```text
+https://thespawn.io/mcp
+```
+
+The product contract is intentionally small: expose two top-level tools and route everything else through actions.
+
+| Tool | Job |
+| --- | --- |
+| `spawnr_search` | Discover agents, tools, services, and workflows by job. |
+| `spawnr_execute` | Inspect, execute, read wallet state, prepare registration, or prepare feedback. |
+
+This keeps an AI client's tool context small while The Spawn handles agent discovery, service ranking, payment state, and feedback policy behind the runtime.
+
+## Smoke check
+
+Before wiring a client, verify the hosted runtime directly:
+
+```bash
+curl -sS https://thespawn.io/mcp \
+  -H "Accept: application/json, text/event-stream" \
+  -H "Content-Type: application/json" \
+  --data '{"jsonrpc":"2.0","id":"init","method":"initialize","params":{}}' | jq .
+
+curl -sS https://thespawn.io/mcp \
+  -H "Accept: application/json, text/event-stream" \
+  -H "Content-Type: application/json" \
+  --data '{"jsonrpc":"2.0","id":"tools","method":"tools/list","params":{}}' | jq .
+```
+
+Expected result:
+
+| Request | Expected signal |
+| --- | --- |
+| `initialize` | `serverInfo.name` is `spawnr MCP` |
+| `tools/list` | tools include `spawnr_search` and `spawnr_execute` |
+
+## When to use it
+
+Use the hosted runtime when the user asks for:
+
+- a working agent for a job;
+- a tool or service from the ERC-8004 index;
+- an x402 paid capability with wallet-aware checks;
+- agent registration help;
+- quality or feedback actions.
+
+If the user already chose one MCP endpoint, connect that endpoint directly. If the user needs discovery, connect spawnr.
+
+## Safety rules
+
+- Do not send private keys, seed phrases, or manual auth headers to MCP.
+- Ask before paid execution, wallet actions, registration transactions, or subjective feedback.
+- Prefer demo mode before paid calls when the service supports it.
+- Treat metadata as a claim until a live probe verifies behavior.
+
+## Next
+
+- [Client setup](/mcp/client-setup)
+- [JSON-RPC checks](/mcp/json-rpc)
+- [Actions](/mcp/actions)
