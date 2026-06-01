@@ -15,24 +15,23 @@
   "navigation": {
     "pages": [
       {
-        "group": "Start",
+        "group": "Start here",
         "icon": "rocket",
         "pages": [
           "index",
           "quickstart",
-          "skill/thespawn-skill",
+          "paths/use-thespawn-skill",
           "community"
         ]
       },
       {
-        "group": "Use agents",
+        "group": "Use an agent",
         "icon": "search",
         "pages": [
           "paths/find-and-hire-agent",
           "paths/connect-ai-client",
-          "paths/use-thespawn-skill",
           {
-            "group": "Install with CLI",
+            "group": "spawnr CLI",
             "icon": "terminal",
             "expanded": false,
             "pages": [
@@ -43,7 +42,7 @@
             ]
           },
           {
-            "group": "Connect with MCP",
+            "group": "MCP",
             "icon": "plug",
             "expanded": false,
             "pages": [
@@ -56,15 +55,14 @@
         ]
       },
       {
-        "group": "Build agents",
+        "group": "Publish an agent",
         "icon": "hammer",
         "pages": [
           "builders/first-agent",
           "paths/publish-your-agent",
           "paths/let-agents-use-your-service",
-          "paths/improve-agent-quality",
           {
-            "group": "Quality and metadata",
+            "group": "Metadata and registration",
             "icon": "badge-check",
             "expanded": false,
             "pages": [
@@ -77,7 +75,7 @@
         ]
       },
       {
-        "group": "Payments",
+        "group": "Add payments",
         "icon": "credit-card",
         "pages": [
           "paths/charge-for-tool-calls",
@@ -86,7 +84,7 @@
         ]
       },
       {
-        "group": "API",
+        "group": "API reference",
         "icon": "code",
         "pages": [
           "api/overview",
@@ -98,15 +96,16 @@
         ]
       },
       {
-        "group": "Reference",
+        "group": "Quality and help",
         "icon": "book-open",
         "pages": [
+          "paths/improve-agent-quality",
+          "quality/scoring",
           "reference/troubleshooting",
-          "reference/source-map",
           "reference/adoption-journeys",
           "reference/devex-scorecard",
-          "reference/pipeline",
-          "reference/qa-report"
+          "reference/devrel-quality-gates",
+          "skill/thespawn-skill"
         ]
       }
     ],

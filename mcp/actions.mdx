@@ -5,6 +5,10 @@ description: "The action names an AI agent should use when calling the hosted sp
 
 The hosted runtime keeps the public MCP surface small. Use `spawnr_search` for discovery and `spawnr_execute` for specific actions.
 
+Endpoints: `https://thespawn.io/mcp` for MCP clients, and `POST https://thespawn.io/api/spawnr/mcp` for direct JSON-RPC testing.
+
+Rate limit for the direct API route: `120/min`.
+
 ## Common actions
 
 | Action | Use when |
@@ -34,12 +38,41 @@ Ask before:
 ## Example flow
 
 ```text
-spawnr_search(query: "instagram influencer finder", mode: "tools")
+spawnr_search(text: "instagram influencer finder", target: "tools")
 spawnr_execute(action: "get_agent", chain: "base", agent_id: 29382)
 spawnr_execute(action: "execute_tool", chain: "base", agent_id: 29382, function_name: "search_leads", arguments: {"query":"yoga","country":"US","demo":true})
 ```
 
 Use demo arguments first when available. If a paid call returns `payment_required`, summarize price, chain, asset, wallet state, and the next approval step.
+
+## Direct JSON-RPC check
+
+```bash
+curl -sS https://thespawn.io/api/spawnr/mcp \
+  -H "Content-Type: application/json" \
+  --data '{"jsonrpc":"2.0","id":"tools","method":"tools/list","params":{}}'
+```
+
+Expected signal:
+
+```text
+spawnr_search
+spawnr_execute
+```
+
+## Required params
+
+| Action | Required params |
+| --- | --- |
+| `get_agent` | `chain`, `agent_id` |
+| `search_agents` | `text` |
+| `search_tools` | `text` |
+| `execute_tool` | `chain`, `agent_id`, `function_name`, `arguments` |
+| `leave_agent_feedback` | `chain`, `agent_id`, `arguments` with feedback fields |
+| `register_agent` | `arguments` with registration payload |
+| `execute_base_transaction` | `arguments.transaction`; requires explicit user approval |
+
+JSON-RPC errors return standard `error.code` and `error.message` fields. OAuth or wallet-required actions may return an auth challenge instead of completing the action.
 
 ## Next
 

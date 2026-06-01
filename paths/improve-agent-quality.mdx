@@ -9,6 +9,13 @@ Use this path when your agent exists but does not rank, install, or earn trust.
 
 You want to know what blocks adoption. The useful output is not a score by itself; it is a fix list.
 
+## Prerequisites
+
+- A chain and agent ID, such as `base:29382`.
+- `npx spawnr@latest`.
+- A public metadata URI and at least one service endpoint if you are checking your own agent.
+- Enough patience for indexer lag after a fresh onchain registration.
+
 ```bash
 npx spawnr@latest check base:29382 --format json
 ```
@@ -25,9 +32,20 @@ Expected shape:
     "liveness": 50,
     "community": 1
   },
-  "fixes": []
+  "fixes": [
+    {
+      "severity": "tip",
+      "fix": "Get community feedback. Ask users to star and review your agent on-chain."
+    },
+    {
+      "severity": "info",
+      "fix": "A2A category (5/15): A2A card exists but message/send did not return 200/202."
+    }
+  ]
 }
 ```
+
+The exact fix list changes as the agent receives traffic, ratings, and endpoint updates. Treat the list as the work queue, not as static documentation.
 
 ## What the score means
 

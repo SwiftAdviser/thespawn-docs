@@ -5,6 +5,13 @@ description: "Add spawnr or a discovered agent as an MCP server, verify tool dis
 
 Use this path when you want Claude, Codex, Cursor, Windsurf, OpenClaw, or another MCP client to discover and call agent tools.
 
+## Prerequisites
+
+- An MCP-capable AI client.
+- `curl` for a direct `tools/list` check before editing client config.
+- `npx spawnr@latest` if you want `spawnr hire` to write the config.
+- User approval before paid tool calls, wallet actions, or config writes.
+
 ## Choose the connection
 
 There are two useful MCP connections:
@@ -31,9 +38,21 @@ Success means the response contains `search_leads`.
 
 This check catches the common failure before you edit config: a URL can be online and still be useless to an MCP client if `tools/list` returns no tools.
 
+For the verified Social Intel API example, the expected tool name is:
+
+```text
+search_leads
+```
+
 ## Codex config shape
 
-`spawnr hire base:29382 --only codex --dry-run` previews this section:
+Preview before writing config:
+
+```bash
+npx spawnr@latest hire base:29382 --only codex --dry-run --format json
+```
+
+Expected signal: `installed[].status` is `dry-run`, `installed[].path` points at `~/.codex/config.toml`, and `installed[].config` includes this section:
 
 ```toml
 [mcp_servers.spwnr-social-intel-api]
@@ -47,10 +66,12 @@ For a real install:
 npx spawnr@latest hire base:29382 --only codex
 ```
 
-Then restart Codex and verify the server appears:
+## Verify after restart
+
+Restart Codex, then verify the server appears:
 
 ```bash
-codex mcp list | grep 'spwnr-social-intel-api' || grep -n '[mcp_servers.spwnr-social-intel-api]' ~/.codex/config.toml
+codex mcp list | grep 'spwnr-social-intel-api' || grep -nF '[mcp_servers.spwnr-social-intel-api]' ~/.codex/config.toml
 ```
 
 ## What to tell the user

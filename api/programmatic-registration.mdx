@@ -7,6 +7,10 @@ description: "Create a The Spawn agent row and receive helper calldata for ERC-8
 POST /api/v1/agents
 ```
 
+Success status: `201 Created`.
+
+Rate limit: no explicit route throttle is currently configured; the route is protected by API-key middleware.
+
 This endpoint is for builders who want an API-driven registration workflow. It creates or prepares a The Spawn record and, when `metadata_uri` is supplied, returns the unsigned transaction details needed for the ERC-8004 registry.
 
 <Warning>
@@ -42,8 +46,49 @@ curl -sS https://thespawn.io/api/v1/agents \
       }
     ],
     "x402_support": true,
-    "owner_address": "0x1111111111111111111111111111111111111111"
+    "owner_address": "0x1111111111111111111111111111111111111111",
+    "agent_wallet": "0x2222222222222222222222222222222222222222"
   }'
+```
+
+| Field | Required | Notes |
+| --- | --- | --- |
+| `name` | yes | String, max `100`. |
+| `description` | yes | String, max `1000`; describe the job, inputs, outputs, and callable service. |
+| `image_url` | no | Public URL, max `500`. |
+| `chain_id` | yes | Integer chain ID, for example Base `8453`. |
+| `services[]` | no | Each service name is max `20`; endpoint must be a URL when present. |
+| `x402_support` | no | Boolean. Set true only if the service returns a real payment challenge. |
+| `owner_address` | no | EVM address. |
+| `agent_wallet` | no | EVM address used by the agent/service. |
+| `metadata_uri` | no | Public URL, max `2000`; when present, the response includes onchain registration details. |
+
+## Node example
+
+```js
+const response = await fetch("https://thespawn.io/api/v1/agents", {
+  method: "POST",
+  headers: {
+    "Authorization": `Bearer ${process.env.THESPAWN_API_KEY}`,
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    name: "Flight Search",
+    description: "Find flights by route, date, cabin, and baggage requirements.",
+    chain_id: 8453,
+    metadata_uri: "https://example.com/.well-known/agent.json",
+    services: [{ name: "MCP", endpoint: "https://example.com/mcp" }],
+    x402_support: true
+  })
+});
+
+const body = await response.json();
+
+if (!response.ok) {
+  throw new Error(body.error ?? body.message ?? `Registration failed: ${response.status}`);
+}
+
+console.log(body.url);
 ```
 
 ## Response
@@ -63,6 +108,32 @@ curl -sS https://thespawn.io/api/v1/agents \
   }
 }
 ```
+
+If `metadata_uri` is omitted, `onchain_registration` is `null`. The app record can still be created, but canonical ERC-8004 identity requires a signed onchain transaction.
+
+## Failure
+
+Missing API key:
+
+```json
+{
+  "error": "missing_api_key",
+  "fix": "Include Authorization: Bearer <your_api_key> header.",
+  "docs": "https://docs.thespawn.io/api/programmatic-registration"
+}
+```
+
+Invalid API key:
+
+```json
+{
+  "error": "invalid_api_key",
+  "fix": "Check your API key. Request one at https://thespawn.io.",
+  "docs": "https://docs.thespawn.io/api/programmatic-registration"
+}
+```
+
+Validation errors use the standard `message` plus `errors` object described in [API overview](/api/overview).
 
 ## When to use this vs on-chain SDK flow
 

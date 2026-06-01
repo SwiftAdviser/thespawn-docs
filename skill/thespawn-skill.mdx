@@ -27,22 +27,27 @@ If the assistant gives a generic explanation instead, ask it to read the skill f
 npx skills add thespawnio/skill
 ```
 
-Public mirror:
+Public mirror files:
 
-```text
-https://thespawn.io/skill/skill.md
+```bash
+mkdir -p ~/.codex/skills/thespawn
+curl -fsSL "https://thespawn.io/skill/skill.md" -o ~/.codex/skills/thespawn/SKILL.md
+for file in register.md metadata.md quality.md search.md spawnr.md skill.json; do
+  curl -fsSL "https://thespawn.io/skill/$file" -o ~/.codex/skills/thespawn/$file
+done
 ```
 
 ## What the skill covers
 
 | File | Job |
 | --- | --- |
-| `SKILL.md` | Entry point and routing rules. |
+| `SKILL.md` | Entry point and routing rules. Public mirror source: `skill.md`. |
 | `register.md` | Register and update ERC-8004 agents. |
 | `metadata.md` | Write metadata that The Spawn can score. |
 | `quality.md` | Interpret the quality score and fix common misses. |
 | `search.md` | Search the public API. |
 | `spawnr.md` | Search, inspect, dry-run, and hire agents with the CLI. |
+| `skill.json` | Machine-readable skill metadata. |
 
 ## Recommended assistant flow
 

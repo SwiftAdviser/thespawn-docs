@@ -15,6 +15,13 @@ Start with the outcome:
 Run a free preview, then show exact payment terms for the paid call.
 ```
 
+## Prerequisites
+
+- A service endpoint with one free demo or preview mode.
+- A paid endpoint that returns HTTP `402` before payment.
+- Exact network, asset, amount, and recipient address for the paid call.
+- Wallet/payment implementation only after the preview and unpaid `402` contract are working.
+
 ## Verified example
 
 Social Intel API exposes a paid search endpoint and a free demo path. The demo proves the result shape before a caller sees the x402 payment challenge.
@@ -34,6 +41,18 @@ curl -i https://socialintel.dev/v1/search \
 ```
 
 Expected result: HTTP `402` with payment requirements. The verified response included `PAYMENT-REQUIRED`, accepted Base USDC and Solana USDC, amount `500000` base units, and a `payTo` address. The free demo and the paid endpoint should use the same input shape, otherwise the demo does not reduce payment risk.
+
+Expected unpaid signal:
+
+```text
+HTTP/2 402
+PAYMENT-REQUIRED
+amount: 500000
+asset: USDC
+network: base
+```
+
+Redact addresses in bug reports unless the address is already meant to be public.
 
 ## What just happened
 
@@ -63,6 +82,7 @@ Your 402 response should include:
 | Agents cannot parse price | Put exact chain, asset, amount, and `payTo` in the response. |
 | The service returns only text | Return machine-readable JSON for 402. |
 | Users do not have funds | Link to wallet funding and show the exact network, usually Base USDC for first runs. |
+| Demo and paid inputs differ | Make the same query shape work in both modes before asking for payment. |
 
 ## Next
 

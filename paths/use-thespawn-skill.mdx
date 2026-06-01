@@ -5,7 +5,7 @@ description: "Install the thespawn skill so a coding agent knows how to search, 
 
 Use this path when you want a tool-using coding agent to understand The Spawn without pasting long instructions every time.
 
-We treat the skill as an adoption surface, not just reference material, because a coding agent can turn a vague user request into the right Spawn command sequence. If the skill is missing or stale, the agent usually falls back to generic MCP or ERC-8004 advice and skips the dry-run checks that protect local config.
+Treat the skill as an adoption surface. A coding agent can turn a vague user request into the right Spawn command sequence; a missing or stale skill usually leads to generic MCP or ERC-8004 advice and skipped dry-run checks.
 
 ## Job
 
@@ -17,6 +17,13 @@ You want your agent to use The Spawn's workflows directly:
 - run quality checks;
 - understand x402 and MCP service requirements.
 
+## Prerequisites
+
+- A coding assistant that supports local skills, such as Codex or Claude Code.
+- `npx` if you use the skills installer.
+- A writable local skills directory, usually `~/.codex/skills` for Codex or `~/.claude/skills` for Claude Code.
+- Restart the assistant after installing or updating skill files.
+
 ## First prompt to test it
 
 After installing the skill, ask your coding agent:
@@ -27,7 +34,7 @@ Use The Spawn to find an Instagram influencer discovery agent, inspect whether i
 
 Expected behavior: the agent should reach for the thespawn skill, use `spawnr search`, inspect a specific agent such as `base:29382`, run or explain `spawnr hire --dry-run`, and ask before writing local config or making paid calls.
 
-If the agent starts by explaining protocol terms instead of searching, the skill did not change behavior enough. Point it back to the job: find a working agent, inspect its endpoint, and dry-run the install.
+When the agent starts by explaining protocol terms before searching, point it back to the job: find a working agent, inspect its endpoint, and dry-run the install.
 
 ## Install
 
@@ -35,17 +42,31 @@ If the agent starts by explaining protocol terms instead of searching, the skill
 npx skills add thespawnio/skill
 ```
 
-If the skill installer is unavailable, fetch the public mirror:
+Without the skill installer, fetch the full public mirror into a dedicated skill directory. Codex expects the entrypoint to be named `SKILL.md`; saving only `skill.md` leaves linked files missing.
 
 ```bash
-curl -sL https://thespawn.io/skill/skill.md -o SKILL.md
+mkdir -p ~/.codex/skills/thespawn
+curl -fsSL "https://thespawn.io/skill/skill.md" -o ~/.codex/skills/thespawn/SKILL.md
+for file in register.md metadata.md quality.md search.md spawnr.md skill.json; do
+  curl -fsSL "https://thespawn.io/skill/$file" -o ~/.codex/skills/thespawn/$file
+done
 ```
+
+## Verify installation
+
+Restart the assistant, then use the test prompt above. Expected behavior:
+
+```text
+The assistant searches with spawnr, inspects base:29382, verifies the MCP endpoint, and keeps install/payment steps in dry-run or approval mode.
+```
+
+Protocol explanation before search means the skill is missing, stale, or too weakly prioritized.
 
 ## Skill files
 
 | File | Job |
 | --- | --- |
-| `skill.md` | Overview, quick start, API index, runtime actions. |
+| `SKILL.md` | Overview, quick start, API index, runtime actions. Public mirror source: `skill.md`. |
 | `register.md` | Onchain registration and chain guidance. |
 | `metadata.md` | Metadata fields and service declarations. |
 | `quality.md` | Scoring layers and optimization. |
@@ -67,6 +88,15 @@ For paid, wallet, registration, or feedback actions, ask before spending money, 
 The live app mirrors skill files under `https://thespawn.io/skill/`. The Docker build currently fetches `skill.md`, `register.md`, `metadata.md`, `quality.md`, `search.md`, and `skill.json`. Because `skill.md` links `spawnr.md`, the mirror should include that file too.
 
 If a skill page says one thing and `spawnr` CLI says another, treat the CLI and live source behavior as the deciding evidence, then update the skill mirror.
+
+## Common errors
+
+| Symptom | Fix |
+| --- | --- |
+| The assistant does not mention The Spawn | Restart the assistant and confirm the files exist in the right skill directory. |
+| It skips `--dry-run` | Tell it to inspect and dry-run before writing config. |
+| It recommends a missing file | Refresh the full mirror, including `spawnr.md`. |
+| It wants to pay or sign immediately | Stop the run and require explicit approval for paid calls, wallet actions, and onchain transactions. |
 
 ## Next
 

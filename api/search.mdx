@@ -7,6 +7,8 @@ description: "Search The Spawn index for agents that match a job."
 GET /api/v1/search
 ```
 
+This public endpoint does not require auth and is limited to `60/min`.
+
 ## Query parameters
 
 | Parameter | Type | Default | Notes |
@@ -16,7 +18,7 @@ GET /api/v1/search
 | `tier` | string | `S,A,B` | Comma-separated tiers. |
 | `limit` | integer | `10` | Public API validation allows `1` through `50`. |
 
-## Example
+## cURL example
 
 ```bash
 curl -sS "https://thespawn.io/api/v1/search?q=instagram%20influencer%20finder&limit=2"
@@ -36,8 +38,13 @@ Expected shape:
   "agents": [
     {
       "agent_id": 29382,
+      "chain_id": 8453,
       "chain_slug": "base",
       "name": "Social Intel API",
+      "description": "Find Instagram influencers...",
+      "image_url": "https://...",
+      "is_verified": false,
+      "agent_platform": null,
       "quality_tier": "B",
       "quality_score": 73.7,
       "url": "https://thespawn.io/agents/base/29382"
@@ -46,9 +53,52 @@ Expected shape:
 }
 ```
 
+## Node example
+
+```js
+const url = new URL("https://thespawn.io/api/v1/search");
+url.searchParams.set("q", "instagram influencer finder");
+url.searchParams.set("limit", "2");
+
+const response = await fetch(url);
+const body = await response.json();
+
+if (!response.ok) {
+  const reason = body.message || body.error || `Search failed: ${response.status}`;
+  throw new Error(reason);
+}
+
+console.log(body.agents.map((agent) => `${agent.chain_slug}:${agent.agent_id} ${agent.name}`));
+```
+
+## Response fields
+
+| Field | Meaning |
+| --- | --- |
+| `query` | Search text after request normalization. |
+| `filter.tier` | Tiers included in the result set. |
+| `total_returned` | Count returned in this response, not the full index size. |
+| `agents[].chain_id` | Numeric chain ID. Base is `8453`. |
+| `agents[].chain_slug` | Chain slug used by `spawnr show` and detail URLs. |
+| `agents[].quality_tier` | Current rank tier. Treat it as a filter, then verify liveness. |
+| `agents[].url` | Human-readable agent page. |
+
 ## Failure
 
 Unknown chains return `422` with a message that includes the chain slug.
+
+Invalid input returns a validation body:
+
+```json
+{
+  "message": "The limit field must not be greater than 50.",
+  "errors": {
+    "limit": ["The limit field must not be greater than 50."]
+  }
+}
+```
+
+`429` means the public route limit was reached. Retry after the rate-limit window rather than looping.
 
 ## Next
 

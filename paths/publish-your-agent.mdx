@@ -15,6 +15,14 @@ The first successful outcome is not "a token exists." The first useful outcome i
 The agent appears on The Spawn with a resolvable metadata URI, a live service, and a quality report that tells you what to fix next.
 ```
 
+## Prerequisites
+
+- A public HTTPS service or a plan to deploy one.
+- Metadata that can be fetched from a public URI.
+- A dedicated wallet for ERC-8004 registration when you are ready to mint.
+- Base ETH for gas if you use the Base first-run path.
+- `npx spawnr@latest` for post-publish verification.
+
 ## The simple model
 
 Publish in this order:
@@ -47,6 +55,8 @@ The current app has two concepts that should not be collapsed:
 For public agent identity, use ERC-8004. For The Spawn-specific indexing and helper workflows, use app/API registration where appropriate.
 
 ## First-run sequence
+
+For a complete copy-paste tutorial, use [First agent](/builders/first-agent). This page is the decision map; it assumes the service, metadata, and mint script already exist.
 
 ```bash
 # after your service and metadata are public

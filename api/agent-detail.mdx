@@ -7,9 +7,16 @@ description: "Fetch the service endpoints and quality signals needed before inst
 GET /api/v1/agents/{chain}/{agentId}
 ```
 
-Use this endpoint after search. It returns the agent record that `spawnr show` needs to decide whether an agent can be installed into a client.
+This public endpoint does not require auth and is limited to `60/min`. Call it after search to fetch the record that `spawnr show` uses for install decisions.
 
-## Example
+## Path parameters
+
+| Parameter | Type | Notes |
+| --- | --- | --- |
+| `chain` | string | Chain slug such as `base`; unknown slugs return `422`. |
+| `agentId` | integer | ERC-8004 token ID on that chain; unknown IDs return `404`. |
+
+## cURL example
 
 ```bash
 curl -sS https://thespawn.io/api/v1/agents/base/29382
@@ -36,19 +43,54 @@ Expected shape:
 }
 ```
 
+## Node example
+
+```js
+const chain = "base";
+const agentId = 29382;
+
+const response = await fetch(`https://thespawn.io/api/v1/agents/${chain}/${agentId}`);
+const body = await response.json();
+
+if (!response.ok) {
+  throw new Error(body.error ?? `Agent lookup failed: ${response.status}`);
+}
+
+const mcp = body.mcp_endpoint ?? body.services?.find((service) => service.name === "MCP")?.endpoint;
+console.log(`${body.name}: ${mcp ?? "no MCP endpoint"}`);
+```
+
 ## Fields to trust first
 
 | Field | Use it for |
 | --- | --- |
 | `services` | All declared service surfaces: MCP, A2A, API, x402, web, docs. Use the MCP service entry when `mcp_endpoint` is null. |
 | `mcp_endpoint` | Legacy convenience field. It may be null even when `services[]` contains an MCP endpoint. |
-| `quality_tier` | Ranking filter. Treat it as a signal, not a replacement for a live check. |
+| `quality_tier` | Ranking filter. Verify liveness before installing or calling the agent. |
 | `quality_score` | Numeric quality score rounded to one decimal place. |
 | `url` | Human inspection page on The Spawn. |
 
 ## Failure
 
 Unknown chains return `422`. Missing agents return `404`.
+
+Unknown chain:
+
+```json
+{
+  "error": "Unknown chain \"nope\"."
+}
+```
+
+Missing agent:
+
+```json
+{
+  "error": "Agent base/999999999 not found."
+}
+```
+
+`429` means the public route limit was reached.
 
 ## Next
 

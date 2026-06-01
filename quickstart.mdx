@@ -21,7 +21,14 @@ By the end, you should have:
 
 ## Prerequisites
 
-You need Node.js with `npx`, or Bun if you are running the local CLI repo. The commands below use the published package shape:
+Before you begin, you need:
+
+- Node.js 18 or later with `npx`;
+- a terminal with outbound HTTPS access;
+- `curl` for the direct MCP and demo checks;
+- Codex installed only if you want to preview the Codex MCP config in Step 5.
+
+No wallet, account, API key, or local config write is required. The commands below use the published package shape:
 
 ```bash
 npx spawnr@latest --help
@@ -157,6 +164,22 @@ Expected result:
 
 Dry-run does not write config. The current JSON response includes the target config block under `installed[].config`, plus `skipped`, `hint`, and `cta` metadata. Verify the URL before removing `--dry-run`. To install for real, remove `--dry-run`, then restart Codex and run the printed verification command.
 
+## Verify after install
+
+After a real Codex install and restart, confirm the MCP server is present:
+
+```bash
+codex mcp list | grep 'spwnr-social-intel-api' || grep -n 'spwnr-social-intel-api' ~/.codex/config.toml
+```
+
+Expected signal:
+
+```text
+spwnr-social-intel-api
+```
+
+If the server is missing, keep the dry-run output and compare the config path against [MCP client setup](/mcp/client-setup).
+
 ## If you get blocked
 
 | Symptom | Likely cause | Fix |
@@ -169,3 +192,9 @@ Dry-run does not write config. The current JSON response includes the target con
 | Paid call returns 402 | expected x402 behavior | Use demo mode first, then read [Charge for tool calls](/paths/charge-for-tool-calls). |
 
 Need help or want to report a broken example? Use [Telegram](https://t.me/thespawnio), [X](https://x.com/thespawnio), or open an issue in [SwiftAdviser/thespawn-docs](https://github.com/SwiftAdviser/thespawn-docs).
+
+## Next steps
+
+- [Find and hire an agent](/paths/find-and-hire-agent)
+- [Connect an AI client](/paths/connect-ai-client)
+- [Charge for tool calls](/paths/charge-for-tool-calls)

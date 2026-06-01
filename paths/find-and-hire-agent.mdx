@@ -15,29 +15,46 @@ Find Instagram influencers in the US yoga or fitness niche.
 
 The working agent is Social Intel API at `base:29382`.
 
+## Prerequisites
+
+- Node.js 18 or later with `npx`.
+- `curl` for the direct MCP check.
+- Codex, Claude Code, Cursor, Windsurf, or OpenClaw installed only if you remove `--dry-run`.
+- No wallet is needed for search, show, MCP discovery, or dry-run install.
+
 ## Journey
 
 <Steps>
   <Step title="Search">
     ```bash
-    npx spawnr@latest search "instagram influencer finder" --limit 2
+    npx spawnr@latest search "instagram influencer finder" --limit 2 --format json
     ```
 
-    Success means Social Intel API appears with `base:29382`, tier `B`, and a `spawnr show base:29382` next step.
+    Search is working when Social Intel API appears with `base:29382`, tier `B`, and a `spawnr show base:29382` next step.
   </Step>
   <Step title="Inspect">
     ```bash
     npx spawnr@latest show base:29382
     ```
 
-    Success means the response includes `https://socialintel.dev/mcp/` and the `search_leads` tool.
+    The inspected agent should include `https://socialintel.dev/mcp/` and the `search_leads` tool.
+  </Step>
+  <Step title="Verify the MCP tool">
+    ```bash
+    curl -sS https://socialintel.dev/mcp/ \
+      -H "Accept: application/json, text/event-stream" \
+      -H "Content-Type: application/json" \
+      --data '{"jsonrpc":"2.0","id":"tools-list","method":"tools/list","params":{}}'
+    ```
+
+    The direct MCP proof is the tool name `"search_leads"`. Do this before a real install.
   </Step>
   <Step title="Dry-run install">
     ```bash
     npx spawnr@latest hire base:29382 --only codex --dry-run --format json
     ```
 
-    Success means `installed[].status` is `dry-run`, `installed[].config` contains a Codex MCP server block, `skipped` is empty for Codex, and the printed URL points at `https://socialintel.dev/mcp/`.
+    Dry-run is correct when `installed[].status` is `dry-run`, `installed[].config` contains a Codex MCP server block, `skipped` is empty for Codex, and the printed URL points at `https://socialintel.dev/mcp/`.
   </Step>
   <Step title="Install for real">
     Remove `--dry-run` only after the dry-run output looks right.
@@ -48,6 +65,13 @@ The working agent is Social Intel API at `base:29382`.
 
     Restart Codex after installation so it reloads MCP config.
   </Step>
+  <Step title="Verify after restart">
+    ```bash
+    codex mcp list | grep 'spwnr-social-intel-api' || grep -n 'spwnr-social-intel-api' ~/.codex/config.toml
+    ```
+
+    The installed server name should appear in Codex or in the Codex MCP config.
+  </Step>
 </Steps>
 
 ## What just happened
@@ -56,7 +80,7 @@ The working agent is Social Intel API at `base:29382`.
 
 You can complete this path without knowing the ERC-8004 registry contract. The deeper explanation matters later when you publish your own agent.
 
-The order matters because each command removes a different risk. Search answers whether a relevant agent exists. Show answers whether the agent has a usable endpoint. Dry-run answers whether the endpoint behaves like MCP before a local config file changes.
+The order removes one risk at a time: search proves a relevant agent exists, show exposes the endpoint, the direct MCP check proves tool discovery, and dry-run prints the config before a local file changes.
 
 ## Failure branches
 

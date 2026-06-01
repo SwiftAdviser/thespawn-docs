@@ -5,11 +5,17 @@ description: "Pair a CLI session, read wallet balance, and create funding links.
 
 These endpoints support `spawnr` account linking and wallet readiness. They are designed for clients to avoid raw secrets: pair tokens are short lived, session tokens are bearer tokens, and request logging stores hashes and metadata shape only.
 
+These routes are not all included in the public OpenAPI file yet. Treat this page as the current contract for CLI pairing and funding flows.
+
 ## Pair a CLI session
 
 ```http
 POST /api/v1/auth/pair-token
 ```
+
+Auth: logged-in web session.
+
+Rate limit: `30/min`.
 
 This endpoint is called from an authenticated The Spawn web session. It returns a single-use token:
 
@@ -24,6 +30,10 @@ Then the CLI claims it:
 ```http
 POST /api/v1/auth/claim
 ```
+
+Auth: none. The one-time `token` is the credential.
+
+Rate limit: `10/min`.
 
 ```bash
 curl -sS https://thespawn.io/api/v1/auth/claim \
@@ -43,11 +53,25 @@ Expected shape:
 
 Pair tokens are single-use and expire after 24 hours. CLI session tokens use the `st_` prefix and expire after 30 days.
 
+Expired or reused token:
+
+```json
+{
+  "error": "token_expired_or_invalid"
+}
+```
+
 ## Read wallet balance
 
 ```http
 GET /api/wallet/balance
 ```
+
+Auth: none for direct balance lookup. Session-linked clients should pass the wallet address from the CLI session.
+
+Rate limit: no explicit route throttle is currently configured.
+
+Supported stablecoin balance chains include Base `8453`, Ethereum `1`, Arbitrum `42161`, Optimism `10`, Polygon `137`, Celo `42220`, and BSC `56`.
 
 ```bash
 curl -sS "https://thespawn.io/api/wallet/balance?chain_id=8453&address=0x1111111111111111111111111111111111111111"
@@ -55,11 +79,24 @@ curl -sS "https://thespawn.io/api/wallet/balance?chain_id=8453&address=0x1111111
 
 `chain_id` defaults to Base mainnet, `8453`.
 
+Expected shape:
+
+```json
+{
+  "balance": "0.00",
+  "symbol": "USDC"
+}
+```
+
+Invalid addresses and unsupported chains fail closed to `0.00` rather than throwing.
+
 ## Create a funding link
 
 ```http
 POST /api/v1/fund-links
 ```
+
+Rate limit: `30/min`.
 
 ```bash
 curl -sS https://thespawn.io/api/v1/fund-links \
@@ -81,23 +118,48 @@ Expected shape:
 }
 ```
 
+Success status: `201 Created`.
+
 ## Check funding status
 
 ```http
 GET /api/v1/fund-links/{code}/status
 ```
 
+Auth: none. The random `code` is the lookup key.
+
+Rate limit: `120/min`.
+
 ```json
 {
   "code": "abc123",
-  "status": "pending",
+  "status": "created",
   "expired": false,
   "fulfilled": false,
+  "fulfilled_at": null,
   "wallet_address": "0x...",
   "chain": "base",
-  "amount": "10.00"
+  "amount": "10.00",
+  "metadata": null
 }
 ```
+
+Missing link:
+
+```json
+{
+  "error": "not_found"
+}
+```
+
+## Failure
+
+| Status | Meaning |
+| --- | --- |
+| `401` | Pair token creation was requested without a logged-in web user. |
+| `410` | Claim token expired, was already used, or is invalid. |
+| `422` | Validation failed, such as an invalid wallet address or amount. |
+| `429` | Route-level rate limit reached. |
 
 ## Next
 

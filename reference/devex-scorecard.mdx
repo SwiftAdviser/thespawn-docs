@@ -5,15 +5,22 @@ description: "A review rubric for The Spawn docs and every first-run journey."
 
 Use this scorecard before shipping a docs change. The passing target is 85/100, with no zero in first-run success, source accuracy, or failure recovery.
 
+It complements the installed `techtrailhead/devrelskills` gates:
+
+- use `technical-tutorial` for path pages and builder guides;
+- use `api-docs-audit` for API and MCP reference;
+- use `code-examples` for any page that teaches a request, CLI workflow, or service integration;
+- use `tech-social` and `dev-newsletter` when the page will feed launch, community, or changelog copy.
+
 ## Rubric
 
 | Category | Points | Passing evidence |
 | --- | ---: | --- |
 | First-run success | 30 | A new developer can copy commands and reach a useful result in under 10 minutes. |
-| Source accuracy | 20 | Every endpoint, auth header, default, and limit matches code or a live check. |
+| Source accuracy | 20 | Every endpoint, auth header, default, response field, error body, and limit matches code or a live check. |
 | Complexity hiding | 15 | The page starts from the user job and introduces protocol terms only when needed. |
 | Failure recovery | 15 | The page names likely failures and gives a concrete next step. |
-| Mintlify structure | 10 | Page has clear title, description, anchors, code blocks, and next links. |
+| Complete examples | 10 | Commands and API examples include expected output, safe env vars, and no pseudocode placeholders. |
 | Community and feedback | 10 | Broken examples have an obvious report path. |
 
 ## Page gate
@@ -25,7 +32,9 @@ For each page:
 3. Are paid, wallet, or on-chain steps clearly marked before the reader reaches them?
 4. Are protocol names explained only after the working path?
 5. Does the page link to the next likely step?
-6. Does the page avoid hype, filler, and generic "seamless/powerful" claims?
+6. Does the page avoid hype, filler, and generic capability claims?
+7. Does a tutorial page have prerequisites, expected output, common errors, and next steps?
+8. Does an API page include auth, params, response fields, error bodies, and rate limits?
 
 ## Journey gate
 
@@ -37,6 +46,18 @@ For each journey:
 | Safe mode | Dry-run, demo, or read-only first step. |
 | Failure branch | At least one likely failure and fix. |
 | Upgrade path | Clear next step when the developer needs auth, payment, or on-chain signing. |
+
+## API gate
+
+For each API page:
+
+| Gate | Required |
+| --- | --- |
+| Contract | Method, path, auth mode, rate limit, and versioning note when the route is not in public OpenAPI. |
+| Inputs | Required and optional params, max lengths, default values, and accepted enum values. |
+| Outputs | Success response fields and one concrete JSON response. |
+| Errors | At least one real validation/auth/not-found/rate-limit body where applicable. |
+| Examples | cURL plus Node or Python for integration-heavy endpoints. |
 
 ## Content gate
 
@@ -53,3 +74,4 @@ Target: zero trope hits and quality score above 8.0.
 
 - [QA report](/reference/qa-report)
 - [Source map](/reference/source-map)
+- [DevRel quality gates](/reference/devrel-quality-gates)
