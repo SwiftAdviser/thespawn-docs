@@ -3,7 +3,7 @@ title: "QA report"
 description: "Current validation state for docs.thespawn.io."
 ---
 
-Status on June 1, 2026: docs content, navigation, live first-run smoke checks, and local Mintlify validation have passed. Custom-domain cutover is still blocked by the missing Mintlify ACME TXT value.
+Status on June 1, 2026: docs content, navigation, live first-run smoke checks, local Mintlify validation, and custom-domain DNS have passed. Some local resolvers may briefly cache the earlier NXDOMAIN result for `docs.thespawn.io`.
 
 ## Required checks
 
@@ -24,7 +24,8 @@ Status on June 1, 2026: docs content, navigation, live first-run smoke checks, a
 | High-quality content gate | `slop_score.py` and `quality_gate.py` | Passed on 23/38 pages; remaining failures reviewed as code/table-heavy false positives or non-blocking prose scores |
 | DevEx subagent score | Scorecard review | Passed: 88/100, no P0 |
 | Leadgen/Hormozi audit | Homepage, navigation, and key journey review | Passed after edits: homepage 8.8/10 on content gate, no stale hire output, skill promoted in nav |
-| DNS | Cloudflare TXT validation and CNAME | Partially complete |
+| DNS | Cloudflare TXT validation and CNAME | Passed |
+| Custom domain | `https://docs.thespawn.io/` through Mintlify | Passed: HTTP 200 via public DNS target |
 
 ## Content gate interpretation
 
@@ -36,17 +37,19 @@ The Leadgen/Hormozi pass changed the docs front door from docs-meta language to 
 
 ## DNS state
 
-TXT validation for `_cf-custom-hostname.docs.thespawn.io` has been added with the Mintlify-provided value. The `_acme-challenge.docs` TXT value was not present in the provided table, so that record cannot be completed yet. Mintlify's instruction says to add TXT records first and wait for validation before adding the `docs` CNAME to `cname.mintlify.builders`.
+Cloudflare DNS now has both Mintlify TXT records and the custom-domain CNAME:
+
+| Type | Name | Value |
+| --- | --- | --- |
+| TXT | `_acme-challenge.docs.thespawn.io` | `8DZFW_sUNHyTqw8B8ZpKXIljIhXqUqL0hHT42nDcxBk` |
+| TXT | `_cf-custom-hostname.docs.thespawn.io` | `03f5ee04-bbbe-4b9f-9954-67d5709c1a20` |
+| CNAME | `docs.thespawn.io` | `cname.mintlify.builders` |
+
+Authoritative Cloudflare DNS and `1.1.1.1` resolve `docs.thespawn.io` to Mintlify. A direct HTTPS check against the Mintlify target returned `HTTP/2 200`. If a local machine still cannot resolve the host, wait for negative DNS cache expiry or flush the local DNS cache.
 
 ## Deployment gate
 
-The docs should not be considered fully live at `docs.thespawn.io` until:
-
-1. The missing ACME TXT value is available and added.
-2. Mintlify validates both TXT records.
-3. The `docs` CNAME points to `cname.mintlify.builders`.
-4. `curl -I https://docs.thespawn.io` returns a successful response.
-5. The main product links point to the docs domain.
+The deployment gate is complete when checked through public DNS. The main product already links to the docs domain. Local resolver caches may temporarily lag behind public DNS after the CNAME cutover.
 
 ## Next
 
