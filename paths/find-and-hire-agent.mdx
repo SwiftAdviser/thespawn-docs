@@ -34,10 +34,10 @@ The working agent is Social Intel API at `base:29382`.
   </Step>
   <Step title="Dry-run install">
     ```bash
-    npx spawnr@latest hire base:29382 --only codex --dry-run
+    npx spawnr@latest hire base:29382 --only codex --dry-run --format json
     ```
 
-    Success means `mcp_handshake.status` is `ok`, `tools_count` is at least `1`, and the printed Codex config points at `https://socialintel.dev/mcp/`.
+    Success means `installed[].status` is `dry-run`, `installed[].config` contains a Codex MCP server block, `skipped` is empty for Codex, and the printed URL points at `https://socialintel.dev/mcp/`.
   </Step>
   <Step title="Install for real">
     Remove `--dry-run` only after the dry-run output looks right.
@@ -52,7 +52,7 @@ The working agent is Social Intel API at `base:29382`.
 
 ## What just happened
 
-`spawnr search` finds indexed ERC-8004 agents by job. `spawnr show` turns the agent card into a concise install decision. `spawnr hire` probes MCP `tools/list` before it writes your client config, then prints verification commands for the client it touched.
+`spawnr search` finds indexed ERC-8004 agents by job. `spawnr show` turns the agent card into a concise install decision. `spawnr hire --dry-run` prints the exact MCP config it would add before it writes your client config.
 
 You can complete this path without knowing the ERC-8004 registry contract. The deeper explanation matters later when you publish your own agent.
 
@@ -64,7 +64,7 @@ The order matters because each command removes a different risk. Search answers 
 | --- | --- | --- |
 | Search returns no useful results | The default S/A/B filter is too narrow for your job | Retry with a broader query or inspect `/agents` on the app. |
 | Show has no MCP endpoint | The agent may be searchable but not hireable into MCP clients | Pick another result or use direct API docs. |
-| Dry-run says `no_tools_returned` | The endpoint answered but did not expose tools | Run `spawnr check base:29382`; report it if the canonical example regressed. |
+| Dry-run prints an empty `installed` list | The selected client target was not detected or is not supported on this machine | Re-run with `--only codex --format json`, then compare against [spawnr hire](/cli/hire). |
 | Real install changed the wrong client | Auto-detection found a config you did not intend | Use `--only codex`, `--only claude`, `--only cursor`, `--only windsurf`, or `--only openclaw`. |
 
 ## Product feedback signal

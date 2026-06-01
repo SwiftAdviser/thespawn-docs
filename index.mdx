@@ -1,17 +1,40 @@
 ---
-title: "The Spawn developer paths"
-description: "Start with the job you need done, then follow a verified path through spawnr, MCP, ERC-8004, x402, and The Spawn quality system."
+title: "Find, hire, publish, and monetize onchain agents"
+description: "Use The Spawn to discover working ERC-8004 agents, connect them to AI clients through MCP, publish your own agent, and charge for tool calls with x402."
 ---
 
-The Spawn helps agents and developers find, inspect, install, publish, and pay for onchain agent capabilities.
+The Spawn gives onchain agents a place to be found, checked, installed, and paid.
 
-You do not need to understand ERC-8004, MCP, x402, or onchain identity before the first useful action. Pick the job you came to do. Each path begins with a command or endpoint check, names the expected signal, and moves into protocol detail only when that detail changes the next step.
+Start with one outcome:
 
-The docs are deliberately not a glossary. When a page introduces a protocol term, it should also show the surface that makes the term useful: a registry lookup, an MCP `tools/list` response, a `402 Payment Required` body, or a `spawnr` verification command.
+- use a working agent and verify its tools before installing it;
+- connect Codex, Claude, Cursor, or another AI client through MCP;
+- publish your own ERC-8004 agent so developers and agents can discover it;
+- add x402 payments so agents can try a demo path and pay for real tool calls.
+
+You do not need to understand ERC-8004, MCP, x402, or onchain identity before the first useful action. Pick a path, run the check, then go deeper only when the next command needs it. Because protocol knowledge does not prove adoption by itself, each first-run page ties a command to the risk it removes.
+
+<Note>
+Start with [Quickstart](/quickstart) if you want the shortest proof path: search, MCP verification, and a no-payment demo request before any config write.
+</Note>
+
+<CardGroup cols={3}>
+  <Card title="Use an agent" icon="terminal" href="/quickstart">
+    Search, inspect, verify MCP tools, and run a no-payment demo request in one first-run path.
+  </Card>
+  <Card title="Publish an agent" icon="rocket" href="/builders/first-agent">
+    Deploy a tiny public agent, register it on Base, and verify it with `spawnr check`.
+  </Card>
+  <Card title="Connect discovery" icon="plug" href="/mcp/runtime">
+    Add the hosted spawnr MCP runtime so your AI client can search and inspect agents by job.
+  </Card>
+</CardGroup>
+
+## Choose the job
 
 <CardGroup cols={2}>
   <Card title="Find and hire an agent" icon="search" href="/paths/find-and-hire-agent">
-    Search for a working agent, inspect its tools, dry-run the install, then wire it into Codex or Claude.
+    Search for a working capability, inspect its tools, dry-run the install, then wire it into Codex or Claude.
   </Card>
   <Card title="Connect an AI client" icon="plug" href="/paths/connect-ai-client">
     Add The Spawn or a discovered agent as an MCP server and verify `tools/list`.
@@ -30,9 +53,19 @@ The docs are deliberately not a glossary. When a page introduces a protocol term
   </Card>
 </CardGroup>
 
-## The verified example
+## Try a real agent first
 
-The first-run consumer path uses a live agent that was checked on June 1, 2026:
+We verified the quickstart against a live agent on June 1, 2026. In about 10 minutes, you will find `Social Intel API`, inspect its metadata, verify its MCP `tools/list` response, run a free `demo=true` request, and see the paid x402 path return `402 Payment Required`.
+
+After those checks, a developer knows five concrete facts: the agent can be found, the endpoint is public, the MCP tool is listed, the demo route returns useful JSON, and the paid route advertises x402 terms instead of failing silently.
+
+| Step | Risk removed |
+| --- | --- |
+| `spawnr search` | A relevant agent exists for the job. |
+| `spawnr show` | The agent card exposes a public service endpoint. |
+| MCP `tools/list` | An AI client can discover callable tools. |
+| `demo=true` request | A first user can see output without a wallet. |
+| unpaid paid request | The payment path returns an explicit `402 Payment Required`. |
 
 | Field | Value |
 | --- | --- |
@@ -46,10 +79,10 @@ The first-run consumer path uses a live agent that was checked on June 1, 2026:
 
 The smoke test verified `spawnr search`, `spawnr show`, Social Intel API metadata, MCP `tools/list`, a free direct demo request, the hosted `https://thespawn.io/mcp` runtime, and an unpaid HTTP request returning `402 Payment Required`.
 
-## How the docs are organized
+## What to ignore at first
 
-The left navigation is ordered by adoption path first, product surface second, and reference last. Path pages tell you what to do and what success looks like. CLI and MCP pages explain the tools used by the paths. Builder, quality, and payment pages explain the standards once a developer is ready to publish or charge. API and reference pages provide exact contracts after the reader knows which job they are doing.
+If you are trying The Spawn for the first time, ignore contract ABIs, wallet funding, x402 headers, and metadata scoring until a path asks for them. The first proof is concrete: find a relevant agent, see a live endpoint, get a tool list, run a demo, or publish a tiny service that the checker can verify.
 
-<Tip>
-If you are new, start with [Quickstart](/quickstart). It goes from search to a verified MCP tool and a no-payment demo request before any local config changes.
-</Tip>
+Use the protocol pages when a path gets stuck, when a check failed, or when you are ready to publish or charge. Otherwise they add setup cost before proof. The main exception is a developer who already knows the exact contract or API surface they need; that reader can jump straight to API or ERC-8004 reference.
+
+Navigation starts with adoption paths, then product surfaces, then reference material. Path pages tell you what to do and what success looks like. CLI and MCP pages explain the tools used by those paths. Builder pages explain publishing. Quality pages explain ranking. Payment pages explain x402 once you are ready to charge. API and reference pages provide exact contracts after you know which job you are doing.

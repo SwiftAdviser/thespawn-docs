@@ -18,20 +18,24 @@ The product contract is intentionally small: expose two top-level tools and rout
 
 This keeps an AI client's tool context small while The Spawn handles agent discovery, service ranking, payment state, and feedback policy behind the runtime.
 
+Use the hosted runtime when the user has a job but no chosen endpoint. Connect a specific agent directly when the user already chose one, because a direct MCP connection keeps the client simpler and avoids routing every call through discovery.
+
 ## Smoke check
 
 Before wiring a client, verify the hosted runtime directly:
 
 ```bash
-curl -sS https://thespawn.io/mcp \
-  -H "Accept: application/json, text/event-stream" \
-  -H "Content-Type: application/json" \
-  --data '{"jsonrpc":"2.0","id":"init","method":"initialize","params":{}}' | jq .
+export SPAWNR_MCP="https://thespawn.io/mcp"
 
-curl -sS https://thespawn.io/mcp \
+post_spawnr_mcp() {
+  curl -sS "$SPAWNR_MCP" \
   -H "Accept: application/json, text/event-stream" \
   -H "Content-Type: application/json" \
-  --data '{"jsonrpc":"2.0","id":"tools","method":"tools/list","params":{}}' | jq .
+  --data "$1" | jq .
+}
+
+post_spawnr_mcp '{"jsonrpc":"2.0","id":"init","method":"initialize","params":{}}'
+post_spawnr_mcp '{"jsonrpc":"2.0","id":"tools","method":"tools/list","params":{}}'
 ```
 
 Expected result:
@@ -40,6 +44,16 @@ Expected result:
 | --- | --- |
 | `initialize` | `serverInfo.name` is `spawnr MCP` |
 | `tools/list` | tools include `spawnr_search` and `spawnr_execute` |
+
+Then prove the runtime can find something useful:
+
+```bash
+post_spawnr_mcp '{"jsonrpc":"2.0","id":"search","method":"tools/call","params":{"name":"spawnr_search","arguments":{"query":"instagram influencer finder","mode":"agents","limit":2}}}'
+```
+
+Expected signal: the response includes `Social Intel API`, a Base agent ID, a quality tier, and `https://socialintel.dev/mcp/` in the tool results. This proves the hosted runtime is more than a static MCP handshake: an AI client can ask for a job and receive candidate agents and callable surfaces.
+
+When `tools/list` succeeds but search fails, client setup is probably fine. Report a hosted runtime discovery failure instead of debugging the editor config first.
 
 ## When to use it
 

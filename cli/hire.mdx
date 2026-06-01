@@ -3,7 +3,9 @@ title: "Hire"
 description: "Probe an agent's MCP server and install it into Claude Code, Cursor, Windsurf, Codex, or OpenClaw."
 ---
 
-`spawnr hire` is the command that can write local AI client config. Use `--dry-run` first.
+Use `spawnr hire` when you found an agent and want it installed into Codex, Claude Code, Cursor, Windsurf, or OpenClaw without hand-editing MCP config.
+
+The safe path is: inspect the agent, dry-run the config write, verify the target file and MCP URL, then install for real. Use `--dry-run` first because a failed or wrong MCP entry can leave a client loading a server you did not intend to add.
 
 ## Dry-run
 
@@ -91,7 +93,7 @@ The file should be mode `0600`. Do not paste session tokens into docs, issues, o
 
 ## Rollback
 
-`spawnr logout` removes the local spawnr session. It does not remove MCP server entries from editor config because those entries belong to the editor. Remove the server block manually if you no longer want the agent connected.
+`spawnr logout` removes the local spawnr session. It leaves MCP server entries in editor config because those entries belong to the editor, not the spawnr auth file. Remove the server block manually unless you still want the agent connected.
 
 ## Next
 

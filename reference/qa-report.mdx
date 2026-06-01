@@ -15,20 +15,24 @@ Status on June 1, 2026: docs content, navigation, live first-run smoke checks, a
 | Direct MCP list | `tools/list` against `https://socialintel.dev/mcp/` | Passed |
 | Direct demo request | `https://socialintel.dev/v1/search?...&demo=true` | Passed |
 | Hosted spawnr MCP | `initialize` and `tools/list` against `https://thespawn.io/mcp` | Passed |
+| Hosted spawnr search action | `spawnr_search` through `https://thespawn.io/mcp` | Passed |
 | CLI hire dry-run | `spawnr hire base:29382 --only codex --dry-run --format json` | Passed |
 | x402 unpaid call | Direct paid API call returns HTTP 402 | Passed |
 | Mintlify local run | `npx mintlify dev --port 3004` | Passed; key pages returned HTTP 200 |
 | Broken links | `PATH=/Users/krutovoy/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:$PATH npx mintlify@latest broken-links` | Passed |
 | Internal nav/link check | local `docs.json` and MDX link script | Passed: 38 pages, 0 missing pages, 0 missing internal links |
-| High-quality content gate | `slop_score.py` and `quality_gate.py` | Passed on 20/38 pages; remaining failures reviewed as code/table-heavy false positives or non-blocking prose scores |
+| High-quality content gate | `slop_score.py` and `quality_gate.py` | Passed on 23/38 pages; remaining failures reviewed as code/table-heavy false positives or non-blocking prose scores |
 | DevEx subagent score | Scorecard review | Passed: 88/100, no P0 |
+| Leadgen/Hormozi audit | Homepage, navigation, and key journey review | Passed after edits: homepage 8.8/10 on content gate, no stale hire output, skill promoted in nav |
 | DNS | Cloudflare TXT validation and CNAME | Partially complete |
 
 ## Content gate interpretation
 
-The high-quality-content-writer gate passed the main quickstart, first consumer path, paid-tool path, hosted MCP runtime, quality scoring, API overview, API search, API quality check, programmatic registration, x402, CLI overview, CLI search/show/check, CLI hire, MCP client setup, MCP actions, community, QA report, and The Spawn skill pages.
+The high-quality-content-writer gate passed the homepage, main quickstart, first consumer path, paid-tool path, hosted MCP runtime, quality scoring, API overview, API search, API quality check, programmatic registration, x402, CLI overview, CLI search/show/check, CLI hire, MCP client setup, MCP actions, community, QA report, and The Spawn skill pages.
 
 The remaining failures are concentrated in pages with long code blocks or dense reference tables: API detail/auth, builder first-agent, source map, wallet funding, and reference scorecards. Those pages were still reviewed manually for factual drift. The real blockers found by the DevEx review were fixed: stale `spawnr hire` output, stale MCP demo-call claims, missing hosted MCP smoke, missing builder prereqs, and ERC-8004 overload ambiguity.
+
+The Leadgen/Hormozi pass changed the docs front door from docs-meta language to outcome-first language: find a working agent, verify tools, install through dry-run, publish a first agent, or charge for calls. The nav now promotes `thespawn` skill near the start because agent-assisted adoption is a primary path, not only a reference topic.
 
 ## DNS state
 

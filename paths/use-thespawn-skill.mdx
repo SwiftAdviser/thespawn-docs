@@ -5,6 +5,8 @@ description: "Install the thespawn skill so a coding agent knows how to search, 
 
 Use this path when you want a tool-using coding agent to understand The Spawn without pasting long instructions every time.
 
+We treat the skill as an adoption surface, not just reference material, because a coding agent can turn a vague user request into the right Spawn command sequence. If the skill is missing or stale, the agent usually falls back to generic MCP or ERC-8004 advice and skips the dry-run checks that protect local config.
+
 ## Job
 
 You want your agent to use The Spawn's workflows directly:
@@ -14,6 +16,18 @@ You want your agent to use The Spawn's workflows directly:
 - prepare registration;
 - run quality checks;
 - understand x402 and MCP service requirements.
+
+## First prompt to test it
+
+After installing the skill, ask your coding agent:
+
+```text
+Use The Spawn to find an Instagram influencer discovery agent, inspect whether it has a live MCP endpoint, and dry-run installing it into Codex. Do not write config until the dry-run output looks correct.
+```
+
+Expected behavior: the agent should reach for the thespawn skill, use `spawnr search`, inspect a specific agent such as `base:29382`, run or explain `spawnr hire --dry-run`, and ask before writing local config or making paid calls.
+
+If the agent starts by explaining protocol terms instead of searching, the skill did not change behavior enough. Point it back to the job: find a working agent, inspect its endpoint, and dry-run the install.
 
 ## Install
 

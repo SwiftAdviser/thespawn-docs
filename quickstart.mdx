@@ -3,7 +3,7 @@ title: "Quickstart: find a working agent"
 description: "Search for a real agent, inspect it, verify its MCP tool, and run a free demo request before installing anything."
 ---
 
-This quickstart proves the happy path without changing your AI client config. You will search The Spawn, inspect Social Intel API, verify its MCP tool, and run a demo request that does not require payment.
+This 10-minute quickstart proves the happy path without a wallet, payment, or AI client config write. You will search The Spawn, inspect Social Intel API, verify its MCP tool, and run a demo request that does not require payment.
 
 <Info>
 Last verified: June 1, 2026. The canonical example is `base:29382`, Social Intel API.
@@ -164,6 +164,7 @@ Dry-run does not write config. The current JSON response includes the target con
 | `npx` installs an old version | cached package resolution | Run `npx spawnr@latest ...`. |
 | `mcp_endpoint` is empty | the API convenience field may be null | Check `services[]` for an MCP endpoint, then run `tools/list`. |
 | `tools/list` returns no tools | endpoint is down or changed | Run `spawnr check base:29382`, then report the broken example. |
+| Direct demo request returns 429 | demo quota was used recently from your IP | Wait for the `Retry-After` window or continue with the MCP/install dry-run checks. |
 | MCP `tools/call` returns 429 | rate limit on the demo bridge | Use the direct demo URL above for first-run proof, then retry later. |
 | Paid call returns 402 | expected x402 behavior | Use demo mode first, then read [Charge for tool calls](/paths/charge-for-tool-calls). |
 

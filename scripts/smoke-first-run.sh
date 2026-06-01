@@ -20,9 +20,18 @@ tools_json="$(curl -sS "$SOCIAL_MCP_URL" \
 printf '%s' "$tools_json" | grep -Fq '"search_leads"'
 
 echo "Checking Social Intel direct demo request"
-demo_json="$(curl -sS "https://socialintel.dev/v1/search?limit=3&query=fitness&country=US&demo=true")"
-printf '%s' "$demo_json" | grep -Fq 'demo_result_count'
-printf '%s' "$demo_json" | grep -Fq '"count":3'
+demo_body="/tmp/thespawn-social-demo-smoke.json"
+demo_status="$(curl -sS -o "$demo_body" -w '%{http_code}' "https://socialintel.dev/v1/search?limit=3&query=fitness&country=US&demo=true")"
+if [ "$demo_status" = "200" ]; then
+  grep -Fq 'demo_result_count' "$demo_body"
+  grep -Fq '"count":3' "$demo_body"
+elif [ "$demo_status" = "429" ]; then
+  grep -Fq 'Demo rate limit exceeded' "$demo_body"
+else
+  echo "Unexpected demo status: $demo_status" >&2
+  cat "$demo_body" >&2
+  exit 1
+fi
 
 echo "Checking hosted spawnr MCP runtime"
 spawnr_init_json="$(curl -sS "${BASE_URL}/mcp" \

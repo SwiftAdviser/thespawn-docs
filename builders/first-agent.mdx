@@ -11,9 +11,32 @@ HTTPS service -> metadata URL -> ERC-8004 registration -> The Spawn quality chec
 
 It uses Cloudflare Workers for the public HTTPS endpoint and raw `viem` for the onchain transaction. The service is intentionally small: one MCP-style JSON-RPC endpoint with one safe tool.
 
+The order matters because each layer depends on the previous one. The Spawn cannot score an agent until the metadata URL is public. The metadata is not useful until it names a callable service. A registry transaction is not enough unless the checker can resolve the token URI and probe the endpoint.
+
 <Warning>
 Use a dedicated wallet with only the gas you need. Do not paste private keys into chats, issues, docs, or support tickets.
 </Warning>
+
+## What you will have
+
+By the end, you should have:
+
+- a public Worker URL;
+- a metadata URL at `/.well-known/agent.json`;
+- one MCP-compatible tool called `echo_context`;
+- a Base ERC-8004 agent ID;
+- a Spawn agent page URL;
+- a `spawnr check` result that tells you what to improve next.
+
+## Preflight
+
+| Need | Why |
+| --- | --- |
+| Bun | Runs the Worker and mint script. |
+| Cloudflare account | Hosts a public HTTPS service The Spawn can probe. |
+| Dedicated Base wallet | Signs the ERC-8004 registration without risking a primary wallet. |
+| Small amount of Base ETH | Pays gas for `register` and `setAgentURI`. |
+| `jq` | Makes JSON verification easier. |
 
 ## 1. Create the service
 

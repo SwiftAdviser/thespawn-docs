@@ -26,6 +26,28 @@ An external caller can find your service, list the operation, run a safe demo, a
 
 Do not publish five protocol labels before one surface works. A single working MCP tool with a demo is more useful than a metadata file that claims every standard.
 
+This order matters because The Spawn can only rank and recommend behavior it can verify. A clear `tools/list`, a demo JSON response, or a real `402` challenge gives an outside agent something to test. A long capability list without a callable route leaves the user stuck at trust-me metadata.
+
+## Minimum viable good listing
+
+If your service has one MCP endpoint and one demo API route, a useful metadata slice can be this small:
+
+```json
+{
+  "name": "Lead Search API",
+  "description": "Find B2B or creator leads by job, market, and location. Includes a free demo mode before paid calls.",
+  "x402Support": true,
+  "services": [
+    { "name": "MCP", "endpoint": "https://your-service.example/mcp", "description": "MCP server with search_leads and demo-safe arguments.", "mcpTools": ["search_leads"] },
+    { "name": "API", "endpoint": "https://your-service.example/v1/search?demo=true", "description": "REST demo route that returns sample JSON without payment." }
+  ]
+}
+```
+
+This is easier to evaluate than a broad protocol checklist. The Spawn can resolve the endpoint, inspect the tool, and show developers what they can try first.
+
+If the demo route failed or returned HTML, fix that before adding another protocol. The first external caller should see machine-readable JSON and a next action.
+
 ## Minimal MCP bar
 
 ```bash

@@ -3,7 +3,23 @@ title: "The Spawn skill"
 description: "Install the thespawn skill so AI coding assistants can register, check, search, and hire agents."
 ---
 
-The skill packages the operating instructions that an AI assistant needs when working with The Spawn. Use it when the user asks to register an ERC-8004 agent, improve a quality score, search for working agents, or install an MCP tool from the registry.
+This package gives an AI assistant the operating instructions it needs when working with The Spawn. Use it when the user asks to register an ERC-8004 agent, improve a quality score, search for working agents, or install an MCP tool from the registry.
+
+It matters because The Spawn has several surfaces that look separate from the outside: `spawnr`, hosted MCP, ERC-8004 registration, x402 payments, metadata, and quality scoring. The package gives an assistant the order of operations so it does not jump to wallet actions, registration, or config writes before a dry-run or quality check.
+
+## What changes after install
+
+Without the skill, an assistant may explain MCP, ERC-8004, or x402 in generic terms. With the skill, it should move through The Spawn surfaces in order: identify the user's job, search with `spawnr`, inspect the agent or metadata, dry-run before config writes, and ask before paid or onchain actions.
+
+Test prompt:
+
+```text
+Find a working lead-search agent in The Spawn and prepare a Codex MCP install, but only dry-run it.
+```
+
+Expected behavior: the assistant should search, choose a concrete agent, show the MCP endpoint, run or propose `spawnr hire --dry-run`, and keep secrets or payment approvals out of the transcript.
+
+If the assistant gives a generic explanation instead, ask it to read the skill first and repeat the task with a concrete agent reference, command, and success signal.
 
 ## Install
 
