@@ -15,7 +15,8 @@
   "navigation": {
     "pages": [
       {
-        "group": "Start here",
+        "group": "Start",
+        "icon": "rocket",
         "pages": [
           "index",
           "quickstart",
@@ -24,54 +25,69 @@
         ]
       },
       {
-        "group": "Choose your job",
+        "group": "Use agents",
+        "icon": "search",
         "pages": [
           "paths/find-and-hire-agent",
           "paths/connect-ai-client",
-          "paths/publish-your-agent",
-          "paths/improve-agent-quality",
-          "paths/charge-for-tool-calls",
-          "paths/let-agents-use-your-service",
-          "paths/use-thespawn-skill"
+          "paths/use-thespawn-skill",
+          {
+            "group": "Install with CLI",
+            "icon": "terminal",
+            "expanded": false,
+            "pages": [
+              "cli/overview",
+              "cli/search-show-check",
+              "cli/hire",
+              "cli/auth-wallet"
+            ]
+          },
+          {
+            "group": "Connect with MCP",
+            "icon": "plug",
+            "expanded": false,
+            "pages": [
+              "mcp/runtime",
+              "mcp/client-setup",
+              "mcp/json-rpc",
+              "mcp/actions"
+            ]
+          }
         ]
       },
       {
         "group": "Build agents",
+        "icon": "hammer",
         "pages": [
           "builders/first-agent",
-          "builders/erc-8004-registration",
-          "builders/metadata",
-          "builders/ag0-and-viem",
-          "quality/scoring"
-        ]
-      },
-      {
-        "group": "spawnr CLI",
-        "pages": [
-          "cli/overview",
-          "cli/search-show-check",
-          "cli/hire",
-          "cli/auth-wallet"
-        ]
-      },
-      {
-        "group": "spawnr MCP",
-        "pages": [
-          "mcp/runtime",
-          "mcp/client-setup",
-          "mcp/json-rpc",
-          "mcp/actions"
+          "paths/publish-your-agent",
+          "paths/let-agents-use-your-service",
+          "paths/improve-agent-quality",
+          {
+            "group": "Quality and metadata",
+            "icon": "badge-check",
+            "expanded": false,
+            "pages": [
+              "builders/metadata",
+              "builders/erc-8004-registration",
+              "builders/ag0-and-viem",
+              "quality/scoring"
+            ]
+          }
         ]
       },
       {
         "group": "Payments",
+        "icon": "credit-card",
         "pages": [
+          "paths/charge-for-tool-calls",
           "payments/x402",
           "payments/wallet-funding"
         ]
       },
       {
         "group": "API",
+        "icon": "code",
         "pages": [
           "api/overview",
           "api/search",
@@ -83,6 +99,7 @@
       },
       {
         "group": "Reference",
+        "icon": "book-open",
         "pages": [
           "reference/troubleshooting",
           "reference/source-map",
