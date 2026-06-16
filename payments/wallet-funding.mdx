@@ -23,12 +23,16 @@ If linked, the CLI returns wallet address, chain, balance, and symbol. If not li
 
 `spawnr hire` and paid-aware CLI flows can return a funding URL when a linked wallet has no balance. Open the link, fund the wallet, wait for settlement, then rerun the same command.
 
-## What not to do
+## Safety checks
 
-- Do not paste private keys into MCP config.
-- Do not send seed phrases to a support channel.
-- Do not bridge funds unless the payment requirement names that chain and asset.
-- Do not approve paid tool calls when the price, chain, or recipient is unclear.
+| Risk | Rule |
+| --- | --- |
+| Private key exposure | Never paste private keys into MCP config. |
+| Seed phrase leakage | Support channels should never receive seed phrases or wallet credentials. |
+| Wrong-chain funding | Bridge only when the payment requirement names that chain and asset. |
+| Unclear payment terms | Do not approve a paid tool call until price, chain, and recipient are explicit. |
+
+If the funding state still looks wrong, report the chain, symbol, balance output, expected payment requirement, and redacted wallet address through [Community](/community).
 
 ## Next
 

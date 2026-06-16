@@ -3,20 +3,19 @@ title: "Quality check API"
 description: "Re-score an agent or host and get the signals behind the tier."
 ---
 
-```http
-POST /api/quality-check
-```
+| Item | Value |
+| --- | --- |
+| Method and path | `POST /api/quality-check` |
+| Auth | None |
 
-Auth: none.
-
-Use the quality check endpoint when you need fresh evidence before publishing, hiring, or debugging an agent.
+Use the quality check endpoint when you need fresh evidence before publishing, hiring, or debugging an agent. The endpoint is useful because it separates metadata, liveness, and community signals; a single score cannot tell you which layer is broken.
 
 ## Request
 
 ```bash
 curl -sS https://thespawn.io/api/quality-check \
   -H "Content-Type: application/json" \
-  --data '{"input":"base:29382"}'
+  --data '{"input":"base/29382"}'
 ```
 
 `input` accepts:
@@ -25,11 +24,13 @@ curl -sS https://thespawn.io/api/quality-check \
 | --- | --- |
 | The Spawn URL | `https://thespawn.io/agents/base/29382` |
 | 8004scan URL | `https://8004scan.io/agents/8453/29382` |
-| Chain slug and token | `base/29382` or `base:29382` |
+| Chain slug and token | `base/29382` |
 | Chain ID and token | `8453:29382` |
 | Host lookup | `socialintel.dev` |
 
-Maximum input length: `500` characters.
+The maximum input length is `500` characters.
+
+Use `base:29382` with the `spawnr check` CLI. The public HTTP API accepts the slash form, `base/29382`, or the chain ID form, `8453:29382`.
 
 ## Node example
 
@@ -37,13 +38,14 @@ Maximum input length: `500` characters.
 const response = await fetch("https://thespawn.io/api/quality-check", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ input: "base:29382" })
+  body: JSON.stringify({ input: "base/29382" })
 });
 
 const body = await response.json();
 
 if (!response.ok) {
-  throw new Error(body.message ?? body.error ?? `Quality check failed: ${response.status}`);
+  const message = body.message || body.error || `Quality check failed with status ${response.status}`;
+  throw new Error(message);
 }
 
 console.log(`${body.agent?.name}: ${body.scores?.quality_tier ?? body.tier}`);
@@ -98,7 +100,9 @@ Missing input:
 }
 ```
 
-Host lookups can return multiple candidates. Use the exact `chain:agentId` form when you need deterministic checks.
+Host lookups can return multiple candidates. Use the exact `chain/agentId` form when you need deterministic checks.
+
+If this output differs, rerun [Quickstart](/quickstart), then report the request, expected result, actual result, and redacted response through [Community](/community).
 
 ## Next
 

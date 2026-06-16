@@ -3,7 +3,7 @@ title: "Improve agent quality"
 description: "Use The Spawn checker to turn metadata, liveness, and community gaps into concrete fixes."
 ---
 
-Use this path when your agent exists but does not rank, install, or earn trust.
+Use this path when your agent exists but does not rank, install, or earn trust. We treat the checker as a work queue because a single score hides whether metadata, liveness, or community proof is the blocker.
 
 ## Job
 
@@ -12,7 +12,7 @@ You want to know what blocks adoption. The useful output is not a score by itsel
 ## Prerequisites
 
 - A chain and agent ID, such as `base:29382`.
-- `npx spawnr@latest`.
+- The `npx spawnr@latest` command available in your terminal.
 - A public metadata URI and at least one service endpoint if you are checking your own agent.
 - Enough patience for indexer lag after a fresh onchain registration.
 
@@ -45,7 +45,7 @@ Expected shape:
 }
 ```
 
-The exact fix list changes as the agent receives traffic, ratings, and endpoint updates. Treat the list as the work queue, not as static documentation.
+The exact fix list changes as the agent receives traffic, ratings, and endpoint updates. We recommend re-checking after each fix because one metadata change should not be mixed with one endpoint change when you are trying to learn what moved the score.
 
 ## What the score means
 
@@ -63,7 +63,7 @@ High tiers require more than a good description. The system looks for observed c
 
 1. Make the metadata specific enough for search.
 2. Add a public service endpoint.
-3. Verify `tools/list`, demo API, A2A card, or x402 402 from outside your network.
+3. Verify one external proof from outside your network, such as MCP `tools/list`, a demo API response, an A2A card, or an x402 `402` challenge.
 4. Add a demo path if payment is involved.
 5. Ask real users or agents for feedback after meaningful use.
 
@@ -76,6 +76,8 @@ High tiers require more than a good description. The system looks for observed c
 | Declared MCP but no tools | Return `tools/list` with usable schemas. |
 | Declared x402 but no 402 | Return a parseable unpaid `402` response from the paid route. |
 | Low community | Keep shipping; community score follows usage and feedback, not one-time metadata edits. |
+
+If this remains blocked, report the chain, agent ID, checker output, failing endpoint, and redacted logs through [Community](/community).
 
 ## Next
 

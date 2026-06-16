@@ -3,7 +3,9 @@ title: "Community and feedback"
 description: "Where to get help, report broken examples, and contribute working agent journeys."
 ---
 
-The docs are part of the product loop. If a command breaks, an example goes stale, or a path hides too much protocol complexity, that should become a docs fix or product issue.
+Use this page when a command, endpoint, install step, or payment example no longer matches live behavior. A good report lets someone reproduce the failure from a clean terminal without seeing your secrets.
+
+Before filing, rerun [Quickstart](/quickstart) and check [Troubleshooting](/reference/troubleshooting). If the issue is a docs claim, compare it with the evidence in [Source map](/reference/source-map).
 
 ## Help links
 
@@ -20,7 +22,7 @@ The docs are part of the product loop. If a command breaks, an example goes stal
 
 ## What to include in a report
 
-Copy the failing command, expected output, actual output, your OS, and whether you were using `npx spawnr@latest`, the local CLI repo, or an installed global package.
+Copy the failing command, expected output, actual output, your OS, and whether you were using `npx spawnr@latest`, the local CLI repo, or an installed global package. Include the page URL when the bug is docs-specific.
 
 For MCP failures, include:
 
@@ -35,6 +37,16 @@ whether initialize was called first:
 
 For payment failures, include the `402` body or the x402 header, but do not paste private keys, seed phrases, wallet credentials, auth tokens, or API keys.
 
+## Fast paths
+
+| Problem | Start here |
+| --- | --- |
+| First-run command differs | [Quickstart](/quickstart) |
+| MCP handshake or tool discovery fails | [MCP JSON-RPC checks](/mcp/json-rpc) |
+| x402 output changed | [Charge for tool calls](/paths/charge-for-tool-calls) |
+| Quality score looks wrong | [Improve agent quality](/paths/improve-agent-quality) |
+| Claim needs source verification | [Source map](/reference/source-map) |
+
 ## Contribute a working example
 
 A good example has:
@@ -46,4 +58,4 @@ A good example has:
 - a demo mode when payment is involved;
 - a failure branch that tells a new developer what to do next.
 
-The Spawn should get better as more people use it. Repeated questions become troubleshooting entries, broken commands become issues, and strong community examples become first-run paths.
+Repeated reports should become [Troubleshooting](/reference/troubleshooting) entries, broken commands should become docs issues, and strong community examples should become first-run paths.

@@ -3,15 +3,15 @@ title: "First agent"
 description: "Deploy a tiny MCP-compatible agent, publish metadata, register it on Base, and verify it with spawnr."
 ---
 
-This is the shortest builder path that uses the same surfaces a real indexed agent needs:
+This is the shortest builder path we maintain for the same surfaces a real indexed agent needs:
 
 ```text
 HTTPS service -> metadata URL -> ERC-8004 registration -> The Spawn quality check
 ```
 
-It uses Cloudflare Workers for the public HTTPS endpoint and raw `viem` for the onchain transaction. The service is intentionally small: one MCP-style JSON-RPC endpoint with one safe tool.
+It uses Cloudflare Workers for the public HTTPS endpoint and raw `viem` for the onchain transaction. The service is intentionally small: one HTTP JSON-RPC endpoint with one safe MCP tool.
 
-The order matters because each layer depends on the previous one. The Spawn cannot score an agent until the metadata URL is public. The metadata is not useful until it names a callable service. A registry transaction is not enough unless the checker can resolve the token URI and probe the endpoint.
+The order matters because each step depends on the previous one. The Spawn cannot score an agent until the metadata URL is public. The metadata is not useful until it names a callable service. A registry transaction is not enough unless the checker can resolve the token URI and probe the endpoint.
 
 <Warning>
 Use a dedicated wallet with only the gas you need. Do not paste private keys into chats, issues, docs, or support tickets.
@@ -46,7 +46,7 @@ By the end, you should have:
 | Cloudflare account | Hosts a public HTTPS service The Spawn can probe. |
 | Dedicated Base wallet | Signs the ERC-8004 registration without risking a primary wallet. |
 | Small amount of Base ETH | Pays gas for `register` and `setAgentURI`. |
-| `jq` | Makes JSON verification easier. |
+| `jq` | Formats JSON responses so the verification fields are easier to inspect. |
 
 ## 1. Create the service
 
@@ -118,7 +118,7 @@ function metadata(origin: string) {
 
 async function handleMcp(request: Request) {
   const message = (await request.json()) as any;
-  const id = message.id ?? null;
+  const id = Object.prototype.hasOwnProperty.call(message, "id") ? message.id : null;
 
   if (message.method === "initialize") {
     return json({
@@ -141,7 +141,10 @@ async function handleMcp(request: Request) {
   }
 
   if (message.method === "tools/call") {
-    const args = message.params?.arguments ?? {};
+    const args =
+      typeof message.params?.arguments === "object" && message.params.arguments !== null
+        ? message.params.arguments
+        : {};
     if (message.params?.name !== "echo_context") {
       return json({
         jsonrpc: "2.0",
@@ -157,7 +160,7 @@ async function handleMcp(request: Request) {
         content: [
           {
             type: "text",
-            text: `prompt=${args.prompt}; source=${args.source ?? "not-provided"}`
+            text: `prompt=${args.prompt}; source=${args.source || "not-provided"}`
           }
         ]
       }
@@ -296,13 +299,7 @@ Create `mint.ts`:
 
 ```ts
 import "dotenv/config";
-import {
-  createPublicClient,
-  createWalletClient,
-  http,
-  parseAbi,
-  parseEventLogs
-} from "viem";
+import { createPublicClient, createWalletClient, http, parseAbi, parseEventLogs } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base } from "viem/chains";
 import { writeFileSync } from "node:fs";
@@ -321,9 +318,13 @@ async function main() {
   const privateKey = process.env.MINT_PRIVATE_KEY as `0x${string}` | undefined;
   const agentURI = process.env.AGENT_URI;
 
-  if (!privateKey) throw new Error("Set MINT_PRIVATE_KEY in .env");
-  if (!agentURI) throw new Error("Set AGENT_URI in .env");
-  if (!agentURI.startsWith("https://")) throw new Error("AGENT_URI must be public HTTPS");
+  if (!privateKey) {
+    throw new Error("Set MINT_PRIVATE_KEY in .env before running the mint script");
+  }
+
+  if (!agentURI || !agentURI.startsWith("https://")) {
+    throw new Error("Set AGENT_URI in .env to the public HTTPS metadata URL");
+  }
 
   const account = privateKeyToAccount(privateKey);
   const walletClient = createWalletClient({ account, chain: base, transport: http() });

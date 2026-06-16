@@ -3,7 +3,7 @@ title: "Source map"
 description: "Where each docs claim came from and how to refresh it."
 ---
 
-These docs are built from code, live endpoints, CLI runs, and prior documentation-pipeline work. When a claim drifts, refresh the source below before rewriting copy.
+These docs are built from code, live endpoints, CLI runs, and prior documentation-pipeline work. We use this map because docs claims drift when CLI output, live endpoints, or payment contracts change before prose changes. When a claim drifts, refresh the source below before rewriting copy.
 
 ## Primary sources
 
@@ -31,16 +31,29 @@ These docs are built from code, live endpoints, CLI runs, and prior documentatio
 | Demo request | `GET https://socialintel.dev/v1/search?...&demo=true` returned 3 preview results. |
 | Hosted spawnr MCP | `initialize` returned `spawnr MCP`; `tools/list` returned `spawnr_search` and `spawnr_execute`. |
 | CLI hire dry-run | `spawnr hire base:29382 --only codex --dry-run --format json` returned a Codex MCP config without writing files. The current JSON contract does not include `mcp_handshake`. |
-| x402 | Unpaid API call returned HTTP 402 with a payment-required contract. |
+| x402 | Unpaid API call returned HTTP `402`, a `payment-required` header, `x402Version: 2`, and USDC accepts for Base, Solana, Polygon, and Arbitrum. |
 
-Last verified: June 1, 2026.
+Last verified: June 16, 2026.
+
+## Page-level claim map
+
+| Page | Claim to protect | Source or live check | Last verified |
+| --- | --- | --- | --- |
+| [Quickstart](/quickstart) | `base:29382` is the canonical first-run agent and exposes `search_leads`. | `scripts/smoke-first-run.sh`; `GET /api/v1/search`; `GET /api/v1/agents/base/29382`; Social Intel MCP `tools/list`. | June 16, 2026 |
+| [Find and hire an agent](/paths/find-and-hire-agent) | `spawnr hire base:29382 --only codex --dry-run --format json` prints a Codex config without writing it. | Local `spawnr` CLI behavior and smoke notes in this repo. | June 16, 2026 |
+| [Connect an AI client](/paths/connect-ai-client) | Hosted runtime exposes `spawnr_search` and `spawnr_execute`; direct Social Intel endpoint exposes `search_leads`. | `POST https://thespawn.io/mcp` and `POST https://socialintel.dev/mcp/` JSON-RPC checks. | June 16, 2026 |
+| [Quality check API](/api/quality-check) | HTTP API accepts `base/29382` and `8453:29382`; `base:29382` is CLI form. | Live `POST /api/quality-check` with `{"input":"base/29382"}`. | June 16, 2026 |
+| [Auth and wallet APIs](/api/auth-and-wallet) | Wallet balance is live decimal state, not a fixed value for placeholder addresses. | `GET /api/wallet/balance` live response shape. | June 16, 2026 |
+| [x402 payments](/payments/x402) | Social Intel unpaid paid request returns `402`, `payment-required`, and a JSON x402 body. | Live `POST https://socialintel.dev/v1/search` without payment. | June 16, 2026 |
+| [Use the thespawn skill](/paths/use-thespawn-skill) | Public mirror includes `spawnr.md`. | `HEAD https://thespawn.io/skill/spawnr.md` returned `200`. | June 16, 2026 |
+| [Docs operations](/reference/pipeline) | Mintlify needs Node below 25 in this workspace. | `node v25.6.1` failed Mintlify; Codex runtime Node `v24.14.0` passed broken-links. | June 16, 2026 |
 
 ## Refresh checklist
 
-1. Re-run the quickstart commands.
-2. Re-run `scripts/smoke-first-run.sh`.
-3. Re-run the high-quality-content-writer gate on changed pages.
-4. Re-run Mintlify local validation.
+1. Run the quickstart commands or `scripts/smoke-first-run.sh`.
+2. Check changed endpoints with direct `curl` before editing examples.
+3. Score changed pages with high-quality-content-writer.
+4. Validate Mintlify with the Node version pinned in `.node-version`.
 5. Update [QA report](/reference/qa-report) with date, commands, and failures.
 
 ## Next

@@ -3,7 +3,7 @@ title: "DevRel quality gates"
 description: "The review gates used to keep The Spawn docs concrete, runnable, and useful for agent developers."
 ---
 
-These docs use the `techtrailhead/devrelskills` review model: code first, verified paths, no protocol lecture before the reader has a working result.
+These docs use the `techtrailhead/devrelskills` review model: code first, verified paths, no protocol lecture before the reader has a working result. The rule exists because protocol explanation can feel complete while the first-run command is still broken.
 
 ## Installed skills
 
@@ -19,13 +19,13 @@ These docs use the `techtrailhead/devrelskills` review model: code first, verifi
 
 The public navigation should stay job-first:
 
-1. Find a working agent.
-2. Connect it to an AI client.
-3. Publish a first agent.
-4. Add payment only after a demo works.
-5. Use API/reference pages after the job is clear.
+1. Start with a working-agent path that proves search, inspection, and MCP discovery.
+2. Connect the chosen agent or hosted runtime to an AI client only after the endpoint responds.
+3. Publish a first agent after a public service and metadata URI already exist.
+4. Add payment only after a demo works, because a paid call without preview is hard to trust.
+5. Use API/reference pages after the job is clear and the reader knows which contract matters.
 
-Internal maintenance pages such as source maps, pipeline prompts, and QA reports can stay in the repository, but they should not compete with first-run developer paths in the main sidebar.
+Internal maintenance pages such as source maps, pipeline prompts, and QA reports should stay below first-run developer paths in a collapsed operations group, not compete with the main task flow.
 
 ## Page gate
 
@@ -35,8 +35,8 @@ Before publishing a page, check it against this list:
 | --- | --- |
 | What job can the reader finish? | The first screen names the outcome in user language. |
 | What does the reader need first? | `## Prerequisites` lists tools, accounts, auth, wallet/gas, network, and whether commands write config or spend money. |
-| What proves success? | Every important command has an expected output, status code, JSON shape, or visible result. |
-| What can fail? | The page names likely failure branches and the next diagnostic command. |
+| Success proof | Every important command has an expected output, status code, JSON shape, or visible result. |
+| Failure branch | The page names likely failure modes and the next diagnostic command. |
 | Where should the reader go next? | The page ends with links to the next likely job, not a generic reference dump. |
 
 ## API gate
@@ -54,15 +54,15 @@ API and MCP pages should include:
 
 ## Current audit status
 
-Last full docs pass: June 1, 2026.
+Last full docs pass: June 16, 2026.
 
 | Area | Status | Follow-up |
 | --- | --- | --- |
-| Navigation | Updated | Public sidebar now prioritizes first-run jobs and hides internal maintenance pages. |
+| Navigation | Passing | Public sidebar prioritizes first-run jobs and keeps operations pages in a collapsed group. |
 | Quickstart | Passing | Keep the verified agent, endpoint, and payment behavior fresh. |
-| Path pages | Improved | Continue adding exact expected output to every command-heavy path. |
-| API reference | Improved | Keep response schemas synced with the live OpenAPI and Laravel routes. |
-| Skill pages | Watch | Keep the public skill mirror and `spawnr` CLI behavior in sync. |
+| Path pages | Passing | Keep success checkpoints, failure branches, and community fallback links in every job path. |
+| API reference | Passing | Keep response schemas synced with the live OpenAPI and Laravel routes. |
+| Skill pages | Passing | Keep the public skill mirror and `spawnr` CLI behavior in sync. |
 
 ## Next
 

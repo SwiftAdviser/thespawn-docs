@@ -3,9 +3,9 @@ title: "Use the thespawn skill"
 description: "Install the thespawn skill so a coding agent knows how to search, register, check, and hire agents through The Spawn."
 ---
 
-Use this path when you want a tool-using coding agent to understand The Spawn without pasting long instructions every time.
+Use this path when you want a tool-using coding agent to run The Spawn workflows without a long prompt every time.
 
-Treat the skill as an adoption surface. A coding agent can turn a vague user request into the right Spawn command sequence; a missing or stale skill usually leads to generic MCP or ERC-8004 advice and skipped dry-run checks.
+The useful test is behavioral. After install, the assistant should search with `spawnr`, inspect a concrete agent, dry-run before editing config, and pause before paid or onchain actions. If it starts with generic MCP or ERC-8004 theory, the skill is missing, stale, or not being prioritized, because the skill's job is to route work into commands before protocol explanation. We use that test because it catches stale skills faster than reading the file list.
 
 ## Job
 
@@ -85,7 +85,7 @@ For paid, wallet, registration, or feedback actions, ask before spending money, 
 
 ## Drift check
 
-The live app mirrors skill files under `https://thespawn.io/skill/`. The Docker build currently fetches `skill.md`, `register.md`, `metadata.md`, `quality.md`, `search.md`, and `skill.json`. Because `skill.md` links `spawnr.md`, the mirror should include that file too.
+The live app mirrors skill files under `https://thespawn.io/skill/`. As of June 16, 2026, the public mirror includes `skill.md`, `register.md`, `metadata.md`, `quality.md`, `search.md`, `spawnr.md`, and `skill.json`; `https://thespawn.io/skill/spawnr.md` returns `200`.
 
 If a skill page says one thing and `spawnr` CLI says another, treat the CLI and live source behavior as the deciding evidence, then update the skill mirror.
 
@@ -97,6 +97,8 @@ If a skill page says one thing and `spawnr` CLI says another, treat the CLI and 
 | It skips `--dry-run` | Tell it to inspect and dry-run before writing config. |
 | It recommends a missing file | Refresh the full mirror, including `spawnr.md`. |
 | It wants to pay or sign immediately | Stop the run and require explicit approval for paid calls, wallet actions, and onchain transactions. |
+
+Still blocked? Report the install command, assistant name, expected behavior, actual behavior, and redacted output through [Community](/community).
 
 ## Next
 

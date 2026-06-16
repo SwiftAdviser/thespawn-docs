@@ -64,6 +64,8 @@ Some lookup routes return a compact `error` string instead:
 
 Treat response bodies as part of the contract for agent callers. A caller should be able to show the exact failed field, not only the HTTP status.
 
+This distinction matters because AI clients need a recovery message they can show to the user. However, lookup routes may still return compact `error` strings when there is no field-level validation context.
+
 ## Rate limits
 
 Public API routes currently return standard rate-limit headers such as `x-ratelimit-limit` and `x-ratelimit-remaining`. Observed limits:

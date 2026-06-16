@@ -3,7 +3,7 @@ title: "Docs pipeline"
 description: "The reusable prompt and subagent pipeline used to build The Spawn docs."
 ---
 
-This pipeline adapts the Mandate docs playbook: separate Mintlify repo, explicit source map, parallel subagents, per-page writer packets, isolated QA, and content-quality gates.
+This pipeline adapts the Mandate docs playbook: separate Mintlify repo, explicit source map, parallel subagents, per-page writer packets, isolated QA, and content-quality gates. We keep the process documented because docs quality depends on live endpoint checks, not only prose review.
 
 ## Pipeline
 
@@ -58,13 +58,13 @@ Take the SwiftAdviser/thespawn-docs Mintlify repo and build a developer-adoption
 Goal: make a new agent developer successful on their first run, then guide them into deeper product paths: spawnr MCP, spawnr CLI, quickstarts, creating and managing agents with agent0/ag0 SDK or viem, ERC-8004 registration, x402 paid tools, The Spawn skill, quality scoring, wallet funding, and community contribution.
 
 Start from customer jobs, not protocol names:
-1. Find and hire a working agent.
-2. Connect an AI client to The Spawn.
-3. Publish an ERC-8004 agent.
-4. Let agents use my service.
-5. Charge for tool calls.
-6. Improve my quality score.
-7. Use The Spawn skill inside coding agents.
+1. Find and hire a working agent through search, inspection, MCP verification, and dry-run install.
+2. Connect an AI client to The Spawn only after the runtime or direct endpoint answers `tools/list`.
+3. Publish an ERC-8004 agent after a public metadata URI and callable service already exist.
+4. Let agents use my service by exposing one checkable protocol surface before broad metadata claims.
+5. Charge for tool calls after a free demo proves result shape and the unpaid route returns x402 `402`.
+6. Improve my quality score by treating checker output as a work queue, not as a vanity number.
+7. Use The Spawn skill inside coding agents so search, dry-run, payment, and registration order is preserved.
 
 Use subagents aggressively:
 - Source-truth scout: map routes, controllers, tests, CLI behavior, and live endpoint evidence.

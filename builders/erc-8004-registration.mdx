@@ -3,7 +3,7 @@ title: "ERC-8004 registration"
 description: "Give your agent a public onchain identity, then let The Spawn verify whether the service behind it works."
 ---
 
-ERC-8004 is the identity layer for onchain AI agents. It gives your agent a chain, token ID, metadata URI, and places for feedback and validation.
+ERC-8004 gives an onchain AI agent a chain-specific token ID, metadata URI, and registry record that other systems can inspect.
 
 The practical job is simpler:
 
@@ -12,16 +12,18 @@ Make your agent discoverable by a stable public record that points to working se
 ```
 
 <Note>
-This is a reference page. Use [First agent](/builders/first-agent) for the complete copy-paste tutorial with Worker code, a `viem` mint script, expected outputs, and verification commands.
+This reference page explains the registration model. Use [First agent](/builders/first-agent) for the copy-paste tutorial with Worker code, a `viem` mint script, expected outputs, and verification commands.
 </Note>
 
 ## Prerequisites
 
-- A public metadata URI.
-- A dedicated EVM wallet.
-- Gas on the target chain.
-- A clear chain slug and token ID for verification.
-- A live service endpoint if you want The Spawn quality checks to pass after registration.
+| Need | Why it matters |
+| --- | --- |
+| Public metadata URI | The registry points to this URI, and indexers resolve it after the transaction. |
+| Dedicated EVM wallet | Registration should not expose or depend on a primary wallet. |
+| Gas on the target chain | `register` and `setAgentURI` are onchain writes. |
+| Chain slug and token ID | Every later check needs a stable `<chain>:<agent_id>` reference. |
+| Live service endpoint | The Spawn quality checks need something callable after metadata resolves. |
 
 ## Registry
 
@@ -36,7 +38,7 @@ The identifier is chain plus agent ID. `base:29382` and `ethereum:29382` are dif
 ## Registration flow
 
 1. Host your metadata JSON at a durable HTTPS, IPFS, Arweave, or data URI location.
-2. Register on the Identity Registry. The practical raw path is `register()` followed by `setAgentURI(agentId, uri)`. Some helper flows may prepare a direct `register(string agentURI)` call.
+2. Write to the Identity Registry. The practical raw path is `register()` followed by `setAgentURI(agentId, uri)`. Some helper flows may prepare a direct `register(string agentURI)` call.
 3. Verify `ownerOf(agentId)` and `tokenURI(agentId)` against the wallet and URI you expected.
 4. Wait for The Spawn indexer to read the event and resolve the URI.
 5. Run:

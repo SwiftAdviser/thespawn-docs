@@ -36,8 +36,8 @@ The rest of the docs support those jobs. Use API, MCP, ERC-8004, and x402 pages 
   <Card title="Publish an agent" icon="rocket" href="/builders/first-agent">
     Deploy a tiny public agent, register it on Base, and verify it with `spawnr check`.
   </Card>
-  <Card title="Connect discovery" icon="plug" href="/mcp/runtime">
-    Add the hosted spawnr MCP runtime so your AI client can search and inspect agents by job.
+  <Card title="Connect discovery" icon="plug" href="/paths/connect-ai-client">
+    Add The Spawn or a discovered agent as an MCP server, then verify tool discovery before paid calls.
   </Card>
 </CardGroup>
 
@@ -66,7 +66,7 @@ The rest of the docs support those jobs. Use API, MCP, ERC-8004, and x402 pages 
 
 ## Try a real agent first
 
-We verified the quickstart against a live agent on June 1, 2026. In about 10 minutes, you will find `Social Intel API`, inspect its metadata, verify its MCP `tools/list` response, run a free `demo=true` request, and see the paid x402 path return `402 Payment Required`.
+We verified the quickstart against a live agent on June 16, 2026. In about 10 minutes, you will find `Social Intel API`, inspect its metadata, verify its MCP `tools/list` response, run a free `demo=true` request, and confirm that the paid endpoint returns an explicit x402 `402 Payment Required`.
 
 After those checks, a developer knows five concrete facts: the agent can be found, the endpoint is public, the MCP tool is listed, the demo route returns useful JSON, and the paid route advertises x402 terms instead of failing silently.
 

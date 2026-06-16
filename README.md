@@ -10,6 +10,13 @@ The docs are organized as an adoption system, not a passive reference. The first
 npx mintlify dev --port 3004
 ```
 
+Mintlify currently rejects Node 25+. This repo pins Node `24.14.0` in `.node-version`; if your shell still uses a newer default, run Mintlify with the Codex LTS runtime:
+
+```bash
+PATH=/Users/krutovoy/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:$PATH npx mintlify@latest broken-links
+PATH=/Users/krutovoy/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:$PATH npx mintlify@latest dev --port 3004
+```
+
 ## Smoke checks
 
 ```bash

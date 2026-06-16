@@ -35,22 +35,37 @@ curl -sS "https://socialintel.dev/v1/search?limit=3&query=fitness&country=US&dem
 Unpaid HTTP request:
 
 ```bash
-curl -i https://socialintel.dev/v1/search \
+curl -sS -D /tmp/socialintel-headers -o /tmp/socialintel-402.json \
+  https://socialintel.dev/v1/search \
   -H "Content-Type: application/json" \
   --data '{"query":"yoga","country":"US","limit":1}'
 ```
 
-Expected result: HTTP `402` with payment requirements. The verified response included `PAYMENT-REQUIRED`, accepted Base USDC and Solana USDC, amount `500000` base units, and a `payTo` address. The free demo and the paid endpoint should use the same input shape, otherwise the demo does not reduce payment risk.
+Expected result: HTTP `402` with payment requirements. The verified response on June 16, 2026 included a `payment-required` header and a JSON body with `x402Version: 2`, `resource.url`, and `accepts[]`.
 
 Expected unpaid signal:
 
 ```text
 HTTP/2 402
-PAYMENT-REQUIRED
-amount: 500000
-asset: USDC
-network: base
+payment-required: <base64 x402 payload>
+"x402Version": 2
+"amount": "500000"
 ```
+
+Decode the header when you need to debug wallet policy:
+
+```bash
+python3 - <<'PY'
+import base64, json, pathlib, re
+
+headers = pathlib.Path("/tmp/socialintel-headers").read_text()
+payload = re.search(r"(?im)^payment-required:\\s*(\\S+)", headers).group(1)
+payload += "=" * (-len(payload) % 4)
+print(json.dumps(json.loads(base64.b64decode(payload)), indent=2))
+PY
+```
+
+The verified payload accepted USDC on Base `eip155:8453`, Solana, Polygon `eip155:137`, and Arbitrum `eip155:42161`. The first-run docs still prefer Base USDC when a user needs a single default rail.
 
 Redact addresses in bug reports unless the address is already meant to be public.
 
@@ -83,6 +98,8 @@ Your 402 response should include:
 | The service returns only text | Return machine-readable JSON for 402. |
 | Users do not have funds | Link to wallet funding and show the exact network, usually Base USDC for first runs. |
 | Demo and paid inputs differ | Make the same query shape work in both modes before asking for payment. |
+
+Still blocked? Report the command, expected result, actual result, accepted network, and redacted response through [Community](/community).
 
 ## Next
 

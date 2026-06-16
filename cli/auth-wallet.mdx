@@ -3,7 +3,7 @@ title: "Auth and wallet"
 description: "Link a local spawnr install to thespawn.io, inspect wallet balance, and handle payment-required states."
 ---
 
-Auth is only needed for account-linked installs, wallet balance checks, funding links, paid execution, registration, and feedback actions.
+Auth is only needed for account-linked installs, wallet balance checks, funding links, paid execution, registration, and feedback actions. We keep unauthenticated search and dry-run checks first because they prove the agent path before account state enters the flow.
 
 ## Login
 
@@ -13,7 +13,7 @@ The web app can generate a one-time claim token when you copy an install command
 npx spawnr@latest login c_example
 ```
 
-Claim tokens work once and expire. If a token fails, copy a fresh install command from thespawn.io.
+Claim tokens work once and expire, so a failed token should be replaced with a fresh install command from thespawn.io.
 
 ## Session file
 
@@ -52,7 +52,7 @@ If you are not linked, the CLI tells you to run `spawnr login <token>`.
 
 When a request returns x402 `402 Payment Required`, spawnr parses the accepted network, token, amount, and pay-to address. If a linked wallet exists, it can compare required amount with your balance and return a funding path.
 
-The first-run payment rail is Base USDC. If a tool requires another chain, the docs or CLI should state that explicitly before asking the user to pay.
+The first-run payment rail is Base USDC. For any other chain, the docs or CLI should state the network and asset before asking the user to pay.
 
 ## Logout
 

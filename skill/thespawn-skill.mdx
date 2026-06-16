@@ -3,7 +3,7 @@ title: "The Spawn skill"
 description: "Install the thespawn skill so AI coding assistants can register, check, search, and hire agents."
 ---
 
-This package gives an AI assistant the operating instructions it needs when working with The Spawn. Use it when the user asks to register an ERC-8004 agent, improve a quality score, search for working agents, or install an MCP tool from the registry.
+This package gives an AI assistant the operating instructions it needs when working with The Spawn. Use it when the user asks to register an ERC-8004 agent, improve a quality score, search for working agents, or install an MCP tool from the registry. We test it with dry-run install prompts because behavior matters more than whether the assistant can summarize the protocols.
 
 It matters because The Spawn has several surfaces that look separate from the outside: `spawnr`, hosted MCP, ERC-8004 registration, x402 payments, metadata, and quality scoring. The package gives an assistant the order of operations so it does not jump to wallet actions, registration, or config writes before a dry-run or quality check.
 
@@ -20,6 +20,8 @@ Find a working lead-search agent in The Spawn and prepare a Codex MCP install, b
 Expected behavior: the assistant should search, choose a concrete agent, show the MCP endpoint, run or propose `spawnr hire --dry-run`, and keep secrets or payment approvals out of the transcript.
 
 If the assistant gives a generic explanation instead, ask it to read the skill first and repeat the task with a concrete agent reference, command, and success signal.
+
+However, do not treat a fluent explanation as proof. The assistant has followed the skill only when it names a real agent or endpoint and keeps risky steps in dry-run or approval mode.
 
 ## Install
 
@@ -59,7 +61,9 @@ done
 
 ## Known mirror check
 
-The public skill manifest references `spawnr.md`. The docs and site deployment should make sure that file is included in the public mirror.
+The public skill manifest references `spawnr.md`. As of June 16, 2026, `https://thespawn.io/skill/spawnr.md` returns `200`; keep that mirror file in deployment checks whenever `spawnr` behavior changes.
+
+If this output differs, rerun [Use The Spawn skill](/paths/use-thespawn-skill), then report the install method, expected behavior, actual behavior, assistant name, and redacted output through [Community](/community).
 
 ## Next
 

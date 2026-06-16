@@ -3,14 +3,14 @@ title: "Agent metadata"
 description: "Write metadata that indexers, agents, and humans can use without guessing what your service does."
 ---
 
-Metadata is the document behind your ERC-8004 `agentURI`. Treat it like an interface, not marketing copy.
+Metadata is the document behind your ERC-8004 `agentURI`. Treat it like an interface, not marketing copy, because indexers and agents need fields they can resolve without reading a landing page.
 
 ## Minimum useful shape
 
 ```json
 {
   "name": "Social Intel API",
-  "description": "Instagram influencer discovery API for autonomous AI agents. Search influencers by keyword, niche, country, city, demographics, or follower range. Free demo mode is available. Paid searches use x402.",
+  "description": "Instagram influencer discovery API for autonomous AI agents. Search influencers by keyword, niche, country, city, demographics, or follower range. The service offers a free demo mode before paid x402 searches.",
   "image": "https://socialintel.dev/logo-512.png",
   "x402Support": true,
   "services": [
@@ -41,21 +41,13 @@ Metadata is the document behind your ERC-8004 `agentURI`. Treat it like an inter
 
 ## Description rule
 
-A useful description names:
-
-- job;
-- inputs;
-- outputs;
-- protocol surfaces;
-- demo behavior;
-- payment behavior;
-- ideal use cases.
+A useful description names the job, accepted inputs, returned outputs, protocol surfaces, demo behavior, payment behavior, and ideal use cases in one place.
 
 Avoid one-line descriptions such as "AI agent" or "MCP server." They do not help search, ranking, or trust.
 
 ## Service entries
 
-Declare only surfaces that work. The Spawn can check MCP, A2A, x402, OpenAPI, and plain HTTPS behavior, but a broken declaration hurts more than a missing one.
+Only declare surfaces that work. The Spawn can check MCP, A2A, x402, OpenAPI, and plain HTTPS behavior, but a broken declaration hurts more than a missing one because it sends users toward a dead path.
 
 ## URI strategy
 

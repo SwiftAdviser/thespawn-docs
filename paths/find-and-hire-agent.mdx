@@ -82,6 +82,8 @@ You can complete this path without knowing the ERC-8004 registry contract. The d
 
 The order removes one risk at a time: search proves a relevant agent exists, show exposes the endpoint, the direct MCP check proves tool discovery, and dry-run prints the config before a local file changes.
 
+Do not skip the dry-run unless you already know the target client and config path, because `hire` can otherwise write to a client you did not intend.
+
 ## Failure branches
 
 | Symptom | What it means | Next action |
@@ -90,6 +92,8 @@ The order removes one risk at a time: search proves a relevant agent exists, sho
 | Show has no MCP endpoint | The agent may be searchable but not hireable into MCP clients | Pick another result or use direct API docs. |
 | Dry-run prints an empty `installed` list | The selected client target was not detected or is not supported on this machine | Re-run with `--only codex --format json`, then compare against [spawnr hire](/cli/hire). |
 | Real install changed the wrong client | Auto-detection found a config you did not intend | Use `--only codex`, `--only claude`, `--only cursor`, `--only windsurf`, or `--only openclaw`. |
+
+Still blocked? Report the command, selected agent, expected output, actual output, OS/tool version, and redacted response through [Community](/community).
 
 ## Product feedback signal
 

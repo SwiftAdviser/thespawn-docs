@@ -45,6 +45,8 @@ spawnr_execute(action: "execute_tool", chain: "base", agent_id: 29382, function_
 
 Use demo arguments first when available. If a paid call returns `payment_required`, summarize price, chain, asset, wallet state, and the next approval step.
 
+This action split exists because the MCP runtime should keep only two tools in an AI client's context. However, `spawnr_execute` still needs exact target fields before it can call, pay, register, or leave feedback.
+
 ## Direct JSON-RPC check
 
 ```bash
@@ -73,6 +75,8 @@ spawnr_execute
 | `execute_base_transaction` | `arguments.transaction`; requires explicit user approval |
 
 JSON-RPC errors return standard `error.code` and `error.message` fields. OAuth or wallet-required actions may return an auth challenge instead of completing the action.
+
+If this output differs, rerun [Quickstart](/quickstart), then report the request, expected result, actual result, and redacted response through [Community](/community).
 
 ## Next
 

@@ -68,8 +68,7 @@
             "pages": [
               "builders/metadata",
               "builders/erc-8004-registration",
-              "builders/ag0-and-viem",
-              "quality/scoring"
+              "builders/ag0-and-viem"
             ]
           }
         ]
@@ -105,6 +104,16 @@
           "reference/adoption-journeys",
           "reference/devex-scorecard",
           "reference/devrel-quality-gates",
+          {
+            "group": "Docs operations",
+            "icon": "list-checks",
+            "expanded": false,
+            "pages": [
+              "reference/source-map",
+              "reference/pipeline",
+              "reference/qa-report"
+            ]
+          },
           "skill/thespawn-skill"
         ]
       }

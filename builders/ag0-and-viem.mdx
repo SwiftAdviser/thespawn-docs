@@ -3,7 +3,7 @@ title: "viem first, ag0 optional"
 description: "Use raw viem as the stable registration path, then add SDK helpers when their current API is verified."
 ---
 
-Use raw `viem` when you need a registration path that is easy to audit and unlikely to break because an SDK changed. Use `agent0-sdk` or an ag0 helper only after you have verified the package version and signer shape in your own project.
+Use raw `viem` when you need a registration path that is easy to audit and unlikely to break because an SDK changed. Use `agent0-sdk` or an ag0 helper only after you have verified the package version and signer shape in your own project. However, keep the raw ABI path nearby so a helper mismatch does not block registration. We keep `viem` first because the contract ABI is the least surprising source of truth during a failed mint.
 
 The load-bearing first-run path is [First agent](/builders/first-agent). This page explains when to keep that raw path and when to wrap it.
 

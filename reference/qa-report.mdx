@@ -3,7 +3,7 @@ title: "QA report"
 description: "Current validation state for docs.thespawn.io."
 ---
 
-Status on June 1, 2026: docs content, navigation, live first-run smoke checks, local Mintlify validation, DevRel skills review, and custom-domain DNS have passed. Some local resolvers may briefly cache the earlier NXDOMAIN result for `docs.thespawn.io`.
+Status on June 16, 2026: the docs audit, subagent review pass, article rewrites, local Mintlify preview, broken-link scan, first-run smoke checks, and high-quality content gates have passed.
 
 ## Required checks
 
@@ -17,25 +17,33 @@ Status on June 1, 2026: docs content, navigation, live first-run smoke checks, l
 | Hosted spawnr MCP | `initialize` and `tools/list` against `https://thespawn.io/mcp` | Passed |
 | Hosted spawnr search action | `spawnr_search` through `https://thespawn.io/mcp` | Passed |
 | CLI hire dry-run | `spawnr hire base:29382 --only codex --dry-run --format json` | Passed |
-| x402 unpaid call | Direct paid API call returns HTTP 402 | Passed |
-| Mintlify local run | `npx mintlify dev --port 3005` | Passed; key pages returned HTTP 200 |
+| x402 unpaid call | Direct paid API call returns HTTP 402 with `payment-required` details | Passed |
+| First-run smoke | `bash scripts/smoke-first-run.sh` | Passed |
+| Mintlify local run | `PATH=/Users/krutovoy/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:$PATH npx mintlify@latest dev --port 3004` | Passed; key pages returned HTTP 200 |
 | Broken links | `PATH=/Users/krutovoy/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:$PATH npx mintlify@latest broken-links` | Passed |
-| Internal nav/link check | local `docs.json` and MDX link script | Passed: 37 nav refs, 0 missing pages, 0 missing internal links |
+| Internal nav/link check | local `docs.json` and MDX page script | Passed: 39 nav refs, 39 MDX files, 0 missing pages |
 | DevRel skills installed | `api-docs-audit`, `code-examples`, `technical-tutorial`, `tech-social`, `dev-newsletter` | Passed; installed under `~/.codex/skills` |
-| DevRel subagent audit | API, tutorial/path, and IA/adoption slices | Passed; findings patched into navigation, API contracts, skill install, and path pages |
-| High-quality content gate | `slop_score.py` and `quality_gate.py` | Passed on prose-first pages; code-heavy MDX reviewed manually because code blocks and tables trigger deterministic false positives |
-| DevEx subagent score | Scorecard review | Passed: 88/100, no P0 |
-| Leadgen/Hormozi audit | Homepage, navigation, and key journey review | Passed after edits: homepage 8.8/10 on content gate, no stale hire output, skill promoted in nav |
+| Subagent audit | Path/journey, API/CLI/MCP, and release QA slices | Passed; findings patched into navigation, API contracts, x402, skill install, and path pages |
+| High-quality content gate | `slop_score.py` and `quality_gate.py` across every `*.mdx` file | Passed: 39 / 39 |
+| Claude Blog audit | `python3 ~/.claude/scripts/analyze_blog.py <file> --format json` across every `*.mdx` file | Completed; findings adapted for Mintlify docs because the upstream rubric scores standalone blog articles |
 | DNS | Cloudflare TXT validation and CNAME | Passed |
 | Custom domain | `https://docs.thespawn.io/` through Mintlify | Passed: HTTP 200 via public DNS target |
 
 ## Content gate interpretation
 
-The high-quality-content-writer gate passed the homepage, main quickstart, paid-tool path, and prose-normalized API/reference pages. Raw MDX scoring still produces false positives on code-heavy pages because the trope detector reads tables and JavaScript control flow as prose patterns. Those pages were reviewed against `technical-tutorial`, `api-docs-audit`, and `code-examples` instead.
+The high-quality-content-writer gate now passes every MDX file in the docs tree. That includes API references, CLI guides, path pages, builder tutorials, payment pages, MCP pages, and operations reference pages.
 
-The real blockers found by the DevRel reviews were fixed: stale `spawnr check` output, missing prerequisites, missing direct MCP verification before install, incomplete skill fallback install, hidden API error/rate-limit contracts, wallet balance auth mismatch, missing programmatic registration validation fields, and the MCP `mode` versus `target` mismatch.
+Claude Blog was still useful as an audit pass, but its raw scores stay low because `analyze_blog.py` expects long-form blog articles with blog-specific schema, authorship, and standalone narrative structure. These docs are task pages, API references, and Mintlify navigation pages. The applied gate is therefore: use Claude Blog findings for structure and specificity, then require high-quality-content-writer plus docs-specific checks before release.
 
-The Leadgen/Hormozi pass changed the docs front door from docs-meta language to outcome-first language: find a working agent, verify tools, install through dry-run, publish a first agent, or charge for calls. The nav now promotes `thespawn` skill near the start because agent-assisted adoption is a primary path, not only a reference topic.
+The subagent review found and fixed release blockers across three slices:
+
+- Path and journey pages now include a success checkpoint, a failure branch, and a community fallback.
+- API and CLI pages now separate CLI `base:29382` input from HTTP API `base/29382` input.
+- MCP examples now use the live `text` and `target` arguments instead of stale `query` and `mode` shapes.
+- x402 pages now document the live `payment-required` response, `x402Version: 2`, `amount: 500000`, and the currently advertised Base, Solana, Polygon, and Arbitrum USDC rails.
+- The `spawnr.md` skill mirror is documented as a live `200` endpoint, with local fallback install steps.
+- Hidden operations pages are now in navigation, and the duplicate `quality/scoring` navigation entry is gone.
+- Local Mintlify usage now pins the LTS Node runtime because the default Node 25 runtime fails in current Mintlify dependency resolution.
 
 ## DNS state
 
@@ -47,11 +55,11 @@ Cloudflare DNS now has both Mintlify TXT records and the custom-domain CNAME:
 | TXT | `_cf-custom-hostname.docs.thespawn.io` | `03f5ee04-bbbe-4b9f-9954-67d5709c1a20` |
 | CNAME | `docs.thespawn.io` | `cname.mintlify.builders` |
 
-Authoritative Cloudflare DNS and `1.1.1.1` resolve `docs.thespawn.io` to Mintlify. A direct HTTPS check against the Mintlify target returned `HTTP/2 200`. If a local machine still cannot resolve the host, wait for negative DNS cache expiry or flush the local DNS cache.
+Authoritative Cloudflare DNS and `1.1.1.1` resolve `docs.thespawn.io` to Mintlify. A direct HTTPS check against the Mintlify target returned `HTTP/2 200`.
 
 ## Deployment gate
 
-The deployment gate is complete when checked through public DNS. The main product already links to the docs domain. Local resolver caches may temporarily lag behind public DNS after the CNAME cutover.
+The deployment gate is complete when checked through public DNS. The main product already links to the docs domain.
 
 ## Next
 

@@ -48,7 +48,7 @@ Expected result:
 Then prove the runtime can find something useful:
 
 ```bash
-post_spawnr_mcp '{"jsonrpc":"2.0","id":"search","method":"tools/call","params":{"name":"spawnr_search","arguments":{"query":"instagram influencer finder","mode":"agents","limit":2}}}'
+post_spawnr_mcp '{"jsonrpc":"2.0","id":"search","method":"tools/call","params":{"name":"spawnr_search","arguments":{"text":"instagram influencer finder","target":"agents","limit":2}}}'
 ```
 
 Expected signal: the response includes `Social Intel API`, a Base agent ID, a quality tier, and `https://socialintel.dev/mcp/` in the tool results. This proves the hosted runtime is more than a static MCP handshake: an AI client can ask for a job and receive candidate agents and callable surfaces.
@@ -73,6 +73,8 @@ If the user already chose one MCP endpoint, connect that endpoint directly. If t
 - Ask before paid execution, wallet actions, registration transactions, or subjective feedback.
 - Prefer demo mode before paid calls when the service supports it.
 - Treat metadata as a claim until a live probe verifies behavior.
+
+If this output differs, rerun [Quickstart](/quickstart), then report the request, expected result, actual result, and redacted response through [Community](/community).
 
 ## Next
 

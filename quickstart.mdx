@@ -3,10 +3,10 @@ title: "Quickstart: find a working agent"
 description: "Search for a real agent, inspect it, verify its MCP tool, and run a free demo request before installing anything."
 ---
 
-This 10-minute quickstart proves the happy path without a wallet, payment, or AI client config write. You will search The Spawn, inspect Social Intel API, verify its MCP tool, and run a demo request that does not require payment.
+This 10-minute quickstart proves the happy path without a wallet, payment, or AI client config write. You will search The Spawn, inspect Social Intel API, verify its MCP tool, run a demo request that does not require payment, and confirm the paid endpoint returns a machine-readable x402 challenge.
 
 <Info>
-Last verified: June 1, 2026. The canonical example is `base:29382`, Social Intel API.
+Last verified: June 16, 2026. The canonical example is `base:29382`, Social Intel API.
 </Info>
 
 ## What you get
@@ -17,6 +17,7 @@ By the end, you should have:
 - one inspected agent card;
 - an MCP `tools/list` response containing `search_leads`;
 - one demo response with three preview results;
+- one unpaid paid request returning HTTP `402` with x402 payment terms;
 - a dry-run MCP config for Codex.
 
 ## Prerequisites
@@ -26,7 +27,7 @@ Before you begin, you need:
 - Node.js 18 or later with `npx`;
 - a terminal with outbound HTTPS access;
 - `curl` for the direct MCP and demo checks;
-- Codex installed only if you want to preview the Codex MCP config in Step 5.
+- Codex installed only if you want to preview the Codex MCP config in Step 6.
 
 No wallet, account, API key, or local config write is required. The commands below use the published package shape:
 
@@ -100,7 +101,7 @@ Expected signal:
 "name":"search_leads"
 ```
 
-What just happened: MCP is the tool transport. `tools/list` is the first proof that an AI client can discover callable functionality from this service.
+What just happened: MCP is the tool transport. `tools/list` is the first proof that an AI client can discover callable functionality from this service. This check comes before install because a valid URL can still expose no usable tools.
 
 ## Step 4: Run the free demo request
 
@@ -116,9 +117,27 @@ Expected signal:
 "public_email": "[available in paid response]"
 ```
 
-Checkpoint: the service returned useful preview data without a wallet or payment. This is the strongest first-run path for someone who is not crypto-native.
+Checkpoint: the service returned useful preview data without a wallet or payment. This is the strongest first-run path for someone who is not crypto-native, because the result shape is visible before wallet policy becomes part of the flow.
 
-## Step 5: Preview install into Codex
+## Step 5: Confirm the unpaid 402 contract
+
+```bash
+curl -sS -D /tmp/socialintel-headers -o /tmp/socialintel-402.json \
+  https://socialintel.dev/v1/search \
+  -H "Content-Type: application/json" \
+  --data '{"query":"yoga","country":"US","limit":1}'
+```
+
+Expected signal:
+
+```text
+HTTP/2 402
+payment-required: <base64 x402 payload>
+```
+
+The JSON body should include `x402Version: 2`, `resource.url`, `accepts[]`, and at least one `amount` of `500000` base units. This proves the paid path explains price and accepted rails before a wallet signs anything. However, stop here unless you intentionally want to test payment with a funded wallet.
+
+## Step 6: Preview install into Codex
 
 ```bash
 npx spawnr@latest hire base:29382 --only codex --dry-run --format json

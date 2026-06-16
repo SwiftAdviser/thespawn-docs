@@ -3,7 +3,7 @@ title: "Connect an AI client"
 description: "Add spawnr or a discovered agent as an MCP server, verify tool discovery, and keep payment-sensitive actions explicit."
 ---
 
-Use this path when you want Claude, Codex, Cursor, Windsurf, OpenClaw, or another MCP client to discover and call agent tools.
+Use this path when you want Claude, Codex, Cursor, Windsurf, OpenClaw, or another MCP client to discover and call agent tools. We recommend a direct `tools/list` check first because config edits are harder to debug after an AI client has cached a broken server.
 
 ## Prerequisites
 
@@ -87,6 +87,8 @@ Use the hosted spawnr MCP runtime when you want the client to keep only two tool
 
 The runtime handles discovery, agent inspection, wallet-aware payment states, feedback preparation, and registration helpers behind those two public tools.
 
+Use the hosted runtime when discovery is the job. However, connect the discovered agent directly when you want a narrow client config and already trust the endpoint. We keep both options documented because they solve different failures: discovery failure belongs to The Spawn runtime, while tool-call failure belongs to the selected agent endpoint.
+
 ## Failure branches
 
 | Symptom | Fix |
@@ -94,6 +96,8 @@ The runtime handles discovery, agent inspection, wallet-aware payment states, fe
 | Client does not show the server | Restart the client and check the config path printed by `spawnr hire`. |
 | `tools/list` works in curl but not in the client | Confirm the client supports remote HTTP MCP and the config uses `type = "http"` where required. |
 | Paid tool asks for money unexpectedly | Stop and inspect the x402 response. The docs path for paid calls is [Charge for tool calls](/paths/charge-for-tool-calls). |
+
+Still blocked? Report the client, config path, endpoint, `tools/list` output, and redacted logs through [Community](/community).
 
 ## Next
 

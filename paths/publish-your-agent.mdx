@@ -58,11 +58,13 @@ For public agent identity, use ERC-8004. For The Spawn-specific indexing and hel
 
 For a complete copy-paste tutorial, use [First agent](/builders/first-agent). This page is the decision map; it assumes the service, metadata, and mint script already exist.
 
+The mint command is project-specific. In the [First agent](/builders/first-agent) tutorial it is `bun run mint.ts`; in your repo it may be a wallet UI, `viem` script, or programmatic registration helper.
+
 ```bash
-# after your service and metadata are public
+# after your service and metadata are public, run your project's mint/register step
 bun run mint.ts
 
-# after the indexer catches up
+# after the indexer catches up, verify the public record
 npx spawnr@latest check base:<agent_id>
 npx spawnr@latest show base:<agent_id> --format json
 ```
@@ -78,6 +80,17 @@ npx spawnr@latest check base:29382
 Replace `base:29382` with your chain and agent ID after minting.
 
 Success means you see a tier, score, metadata/liveness/community breakdown, and specific fixes. If the checker cannot resolve your agent, inspect the metadata URI and registry transaction first.
+
+## Failure branches
+
+| Symptom | Likely cause | Next action |
+| --- | --- | --- |
+| Metadata URI does not fetch | The URL is private, blocked, or returning HTML | Open the URI in curl and fix hosting before minting. |
+| Checker cannot resolve the agent | Indexer lag, wrong chain, wrong token ID, or missing URI | Verify `ownerOf` and `tokenURI`, wait for the indexer, then rerun `spawnr check`. |
+| Score resolves but liveness is low | Metadata exists but no service probe succeeded | Add MCP `tools/list`, a demo API route, A2A card, or x402 `402` proof. |
+| Search does not show the agent | Quality tier or text relevance is too low | Fix the checker recommendations before announcing the agent. |
+
+Still blocked? Report the chain, token ID, metadata URI, checker output, and redacted transaction hash through [Community](/community).
 
 ## Next
 

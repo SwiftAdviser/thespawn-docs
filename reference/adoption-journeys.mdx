@@ -1,47 +1,44 @@
 ---
 title: "Adoption journeys"
-description: "Checkable first-run journeys for agent consumers, builders, monetizers, and quality improvers."
+description: "First-run paths for developers using or publishing The Spawn agents."
 ---
 
-The docs are organized around developer jobs. Each journey starts with a command that proves one surface, then introduces protocol detail only when the next step depends on it.
+The docs are organized around developer jobs because protocol names are not adoption proof. Each journey starts with a command that proves one surface, then introduces protocol detail only when the next step depends on it. A journey is blocked unless the reader can identify the next command, success signal, and recovery path.
 
 ## Journey 1: Find and hire a working agent
 
-Run `spawnr search "instagram influencer finder" --limit 2 --format json`, inspect `base:29382` with `spawnr show`, and confirm that `https://socialintel.dev/mcp/` returns `search_leads` from `tools/list`. The no-payment proof is the direct demo URL, `https://socialintel.dev/v1/search?limit=3&query=fitness&country=US&demo=true`. The install proof is `spawnr hire base:29382 --only codex --dry-run --format json`, which prints the Codex MCP config without writing it.
-
-Success means the developer has a copy-paste MCP config and knows the endpoint responds today.
-
-Full path: [Find and hire an agent](/paths/find-and-hire-agent).
+Run `spawnr search "instagram influencer finder" --limit 2 --format json`, inspect `base:29382` with `spawnr show`, and confirm that `https://socialintel.dev/mcp/` returns `search_leads` from `tools/list`. The no-payment proof is the direct demo URL, `https://socialintel.dev/v1/search?limit=3&query=fitness&country=US&demo=true`. The install proof is `spawnr hire base:29382 --only codex --dry-run --format json`, which prints the Codex MCP config without writing it. Success means the developer has a copy-paste MCP config and knows the endpoint responds today.
 
 ## Journey 2: Connect an AI client to The Spawn
 
-Configure `https://thespawn.io/mcp` as an HTTP MCP server. Before adding it to a client, call `initialize` and `tools/list`; the current runtime returns `spawnr MCP`, version `2.0-runtime`, with `spawnr_search` and `spawnr_execute`. After that, a client can search the registry without custom API code. Wallet or paid actions should still pause for pairing or user approval.
-
-Full path: [Connect an AI client](/paths/connect-ai-client).
+Configure `https://thespawn.io/mcp` as an HTTP MCP server. Before adding it to a client, call `initialize` and `tools/list`; the current runtime returns `spawnr MCP` with `spawnr_search` and `spawnr_execute`. After that, a client can search the registry without custom API code. Wallet or paid actions should still pause for pairing or user approval.
 
 ## Journey 3: Publish an agent
 
-Write metadata with name, description, image, services, and endpoints. Register the metadata URI on ERC-8004, then verify the chain plus token ID with `spawnr check <chain>:<agent_id>`. The Spawn should be able to resolve the metadata, probe at least one callable surface, and return a score breakdown. If the score is low, fix the named metadata or liveness issue before announcing the agent.
-
-Full path: [Publish your agent](/paths/publish-your-agent) or [First agent](/builders/first-agent).
+Write metadata with name, description, image, services, and endpoints. Register the metadata URI on ERC-8004, then verify the chain plus token ID with `spawnr check <chain>:<agent_id>`. The Spawn should be able to resolve the metadata, probe at least one callable surface, and return a score breakdown. If the score is low, fix the named metadata or liveness issue before announcing the agent. Use [Publish your agent](/paths/publish-your-agent) for the decision map or [First agent](/builders/first-agent) for the copy-paste tutorial.
 
 ## Journey 4: Let agents use your service
 
 Choose one surface first: MCP for tool use, API for structured HTTP callers, or A2A for delegated agent tasks. Add a safe demo, publish input schema and errors, put the live endpoint in metadata, then re-score. Success means another developer can call the service before payment or account setup.
 
-Full path: [Let agents use your service](/paths/let-agents-use-your-service).
-
 ## Journey 5: Charge for tool calls
 
 Offer a free preview first, then make the unpaid paid endpoint return HTTP `402`. A useful `402` response includes `resource`, `accepts[]`, demo instructions, and a contact path. Wallet funding and receipts come after the caller understands the value of the result.
-
-Full path: [Charge for tool calls](/paths/charge-for-tool-calls).
 
 ## Journey 6: Improve quality
 
 Run the checker and read the metadata, liveness, and community breakdown separately. Fix metadata first when the description is vague or services are untyped. Fix liveness when no endpoint is reachable or callable. Re-check after each change so the builder can see which change moved the score.
 
-Full path: [Improve agent quality](/paths/improve-agent-quality).
+## Journey table
+
+| Job | First proof | Main page |
+| --- | --- | --- |
+| Find and hire | `tools/list` returns `search_leads`; dry-run prints config | [Find and hire an agent](/paths/find-and-hire-agent) |
+| Connect a client | Hosted runtime returns `spawnr_search` and `spawnr_execute` | [Connect an AI client](/paths/connect-ai-client) |
+| Publish | `spawnr check <chain>:<agent_id>` resolves metadata and liveness | [Publish your agent](/paths/publish-your-agent) |
+| Expose a service | A demo route or MCP tool works outside your network | [Let agents use your service](/paths/let-agents-use-your-service) |
+| Monetize | Unpaid paid route returns parseable x402 `402` | [Charge for tool calls](/paths/charge-for-tool-calls) |
+| Improve quality | Checker returns a tier, breakdown, and concrete fixes | [Improve agent quality](/paths/improve-agent-quality) |
 
 ## Next
 
