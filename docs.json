@@ -109,6 +109,7 @@
             "icon": "list-checks",
             "expanded": false,
             "pages": [
+              "reference/claude-blog-checks",
               "reference/source-map",
               "reference/pipeline",
               "reference/qa-report"

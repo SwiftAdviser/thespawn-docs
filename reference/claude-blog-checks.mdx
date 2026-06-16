@@ -1,0 +1,131 @@
+---
+title: "Claude Blog checks"
+description: "Raw Claude Blog gate results for docs.thespawn.io."
+---
+
+Status on June 16, 2026: Claude Blog checks ran against the 39 release MDX pages from the audit pass. This report page is excluded so the report does not score itself. The checks completed, but the raw Claude Blog rubric did not pass because it scores standalone long-form blog packages, not task-first documentation pages.
+
+## Commands
+
+Recursive MDX analyzer:
+
+```bash
+scripts/claude-blog-checks.py \
+  --exclude reference/claude-blog-checks.mdx \
+  --out .tmp/claude-blog-checks/script-summary.json \
+  --table .tmp/claude-blog-checks/script-table.md
+```
+
+Upstream analyzer used by the wrapper:
+
+```bash
+python3 /Users/krutovoy/.claude/scripts/analyze_blog.py <file> --format json
+```
+
+Delivery contract probes:
+
+```bash
+python3 /Users/krutovoy/.claude/scripts/blog_preflight.py \
+  --draft .tmp/claude-blog-checks/draft \
+  --gate 1 \
+  --json
+
+python3 /Users/krutovoy/.claude/scripts/blog_preflight.py \
+  --draft .tmp/claude-blog-checks/draft \
+  --json
+
+python3 /Users/krutovoy/.claude/scripts/blog_render.py \
+  --md quickstart.mdx \
+  --out-dir .tmp/claude-blog-checks/render-quickstart \
+  --pdf-engine none \
+  --json
+```
+
+## Result
+
+| Check | Outcome |
+| --- | --- |
+| Recursive analyzer coverage | `39 / 39` release MDX pages scored; this report page is excluded to avoid a self-referential check |
+| Raw score range | `26` to `45` |
+| Average raw score | `35.1` |
+| Raw ratings | `39` pages rated `Rewrite` |
+| Capability discovery | Passed with warning: no configured image-generation key, Openverse fallback assumed |
+| Full Blog Delivery Contract | Blocked at Gates 2-5 because this repo is not a standalone blog draft folder |
+| `blog_render.py` on `quickstart.mdx` | Failed because Claude Blog requires `date` and `author` frontmatter for BlogPosting output |
+
+This is a Claude Blog fail under the strict blog contract. It is not a content-quality pass. The release decision uses Claude Blog as an audit input, then applies the docs-specific gates: runnable examples, Mintlify build checks, link checks, browser verification, and the high-quality-content-writer anti-slop gate.
+
+## Why raw scores stay low
+
+Claude Blog expects full article packages:
+
+- 1,200-3,000 word body copy;
+- `date` and `author` frontmatter;
+- BlogPosting JSON-LD;
+- hero image and image alt coverage;
+- PDF and HTML render artifacts;
+- long-form citation and E-E-A-T structure.
+
+The Spawn docs pages are shorter task pages, API references, CLI references, and operations notes. Adding blog-only padding would make the docs worse. The useful part of this check is therefore the raw failure signal: it identifies where the blog rubric does not match the documentation artifact.
+
+## Raw analyzer table
+
+| Page | Score | Rating | C | SEO | EEAT | Tech | AI cite | Top issue |
+| --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| `reference/pipeline.mdx` | 26 | Rewrite | 6 | 11 | 0 | 4 | 5 | high: Word count (222) below benchmark (1200-3000) for default |
+| `api/overview.mdx` | 30 | Rewrite | 8 | 13 | 0 | 5 | 4 | high: Word count (412) below benchmark (1200-3000) for default |
+| `mcp/actions.mdx` | 31 | Rewrite | 7 | 13 | 0 | 5 | 6 | high: Word count (392) below benchmark (1200-3000) for default |
+| `reference/source-map.mdx` | 31 | Rewrite | 10 | 11 | 0 | 5 | 5 | high: Word count (583) below benchmark (1200-3000) for default |
+| `mcp/client-setup.mdx` | 32 | Rewrite | 12 | 13 | 0 | 5 | 2 | high: Word count (78) below benchmark (1200-3000) for default |
+| `mcp/json-rpc.mdx` | 32 | Rewrite | 9 | 13 | 0 | 6 | 4 | high: Word count (197) below benchmark (1200-3000) for default |
+| `reference/qa-report.mdx` | 32 | Rewrite | 10 | 11 | 0 | 5 | 6 | high: No author attribution in frontmatter |
+| `api/programmatic-registration.mdx` | 33 | Rewrite | 10 | 14 | 0 | 4 | 5 | high: Word count (419) below benchmark (1200-3000) for default |
+| `api/quality-check.mdx` | 33 | Rewrite | 12 | 13 | 0 | 5 | 3 | high: Word count (244) below benchmark (1200-3000) for default |
+| `builders/erc-8004-registration.mdx` | 33 | Rewrite | 10 | 13 | 0 | 6 | 4 | high: Word count (412) below benchmark (1200-3000) for default |
+| `cli/auth-wallet.mdx` | 33 | Rewrite | 13 | 13 | 0 | 5 | 2 | high: Word count (213) below benchmark (1200-3000) for default |
+| `mcp/runtime.mdx` | 33 | Rewrite | 9 | 13 | 1 | 6 | 4 | high: Word count (378) below benchmark (1200-3000) for default |
+| `payments/x402.mdx` | 33 | Rewrite | 10 | 13 | 0 | 6 | 4 | high: Word count (273) below benchmark (1200-3000) for default |
+| `reference/adoption-journeys.mdx` | 33 | Rewrite | 10 | 13 | 1 | 4 | 5 | high: Word count (514) below benchmark (1200-3000) for default |
+| `reference/devex-scorecard.mdx` | 33 | Rewrite | 9 | 13 | 0 | 5 | 6 | high: Word count (470) below benchmark (1200-3000) for default |
+| `builders/metadata.mdx` | 34 | Rewrite | 11 | 13 | 0 | 6 | 4 | high: Word count (182) below benchmark (1200-3000) for default |
+| `cli/overview.mdx` | 34 | Rewrite | 11 | 13 | 0 | 6 | 4 | high: Word count (199) below benchmark (1200-3000) for default |
+| `skill/thespawn-skill.mdx` | 34 | Rewrite | 12 | 13 | 0 | 6 | 3 | high: Word count (458) below benchmark (1200-3000) for default |
+| `api/auth-and-wallet.mdx` | 35 | Rewrite | 14 | 13 | 0 | 5 | 3 | high: Word count (398) below benchmark (1200-3000) for default |
+| `api/search.mdx` | 35 | Rewrite | 16 | 11 | 0 | 5 | 3 | high: Word count (208) below benchmark (1200-3000) for default |
+| `builders/ag0-and-viem.mdx` | 35 | Rewrite | 12 | 13 | 0 | 6 | 4 | high: Word count (391) below benchmark (1200-3000) for default |
+| `community.mdx` | 35 | Rewrite | 9 | 14 | 2 | 6 | 4 | high: Word count (304) below benchmark (1200-3000) for default |
+| `api/agent-detail.mdx` | 36 | Rewrite | 17 | 11 | 0 | 5 | 3 | high: Word count (184) below benchmark (1200-3000) for default |
+| `cli/search-show-check.mdx` | 36 | Rewrite | 12 | 13 | 1 | 6 | 4 | high: Word count (197) below benchmark (1200-3000) for default |
+| `paths/connect-ai-client.mdx` | 36 | Rewrite | 13 | 13 | 0 | 6 | 4 | high: Word count (508) below benchmark (1200-3000) for default |
+| `paths/publish-your-agent.mdx` | 36 | Rewrite | 12 | 13 | 0 | 5 | 6 | high: No author attribution in frontmatter |
+| `reference/devrel-quality-gates.mdx` | 36 | Rewrite | 12 | 13 | 0 | 5 | 6 | high: Word count (588) below benchmark (1200-3000) for default |
+| `reference/troubleshooting.mdx` | 36 | Rewrite | 13 | 14 | 0 | 5 | 4 | high: Word count (483) below benchmark (1200-3000) for default |
+| `paths/charge-for-tool-calls.mdx` | 37 | Rewrite | 13 | 14 | 0 | 6 | 4 | high: Word count (507) below benchmark (1200-3000) for default |
+| `paths/use-thespawn-skill.mdx` | 37 | Rewrite | 14 | 13 | 0 | 6 | 4 | high: No author attribution in frontmatter |
+| `payments/wallet-funding.mdx` | 37 | Rewrite | 13 | 14 | 0 | 6 | 4 | high: Word count (197) below benchmark (1200-3000) for default |
+| `cli/hire.mdx` | 38 | Rewrite | 14 | 13 | 1 | 6 | 4 | high: Word count (271) below benchmark (1200-3000) for default |
+| `paths/let-agents-use-your-service.mdx` | 38 | Rewrite | 15 | 13 | 0 | 6 | 4 | high: Word count (472) below benchmark (1200-3000) for default |
+| `quality/scoring.mdx` | 38 | Rewrite | 15 | 13 | 0 | 6 | 4 | high: Word count (308) below benchmark (1200-3000) for default |
+| `paths/find-and-hire-agent.mdx` | 39 | Rewrite | 14 | 14 | 0 | 5 | 6 | high: Word count (520) below benchmark (1200-3000) for default |
+| `paths/improve-agent-quality.mdx` | 39 | Rewrite | 16 | 13 | 0 | 6 | 4 | high: Word count (402) below benchmark (1200-3000) for default |
+| `builders/first-agent.mdx` | 40 | Rewrite | 16 | 13 | 1 | 6 | 4 | high: Word count (546) below benchmark (1200-3000) for default |
+| `quickstart.mdx` | 44 | Rewrite | 17 | 15 | 1 | 5 | 6 | high: No author attribution in frontmatter |
+| `index.mdx` | 45 | Rewrite | 15 | 18 | 0 | 6 | 6 | high: No author attribution in frontmatter |
+
+## Release interpretation
+
+Do not treat this page as proof that the docs passed Claude Blog's strict blog contract. Treat it as proof that the check ran and that the strict rubric is not the acceptance gate for this artifact shape.
+
+For this docs repo, the release gate is:
+
+- Claude Blog raw audit recorded;
+- high-quality-content-writer passes every MDX page, including this report page;
+- live examples pass smoke checks;
+- Mintlify broken links pass;
+- local preview renders key pages;
+- browser QA confirms the rewritten paths are visible.
+
+## Next
+
+- [QA report](/reference/qa-report)
+- [Source map](/reference/source-map)

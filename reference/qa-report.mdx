@@ -24,8 +24,8 @@ Status on June 16, 2026: the docs audit, subagent review pass, article rewrites,
 | Internal nav/link check | local `docs.json` and MDX page script | Passed: 39 nav refs, 39 MDX files, 0 missing pages |
 | DevRel skills installed | `api-docs-audit`, `code-examples`, `technical-tutorial`, `tech-social`, `dev-newsletter` | Passed; installed under `~/.codex/skills` |
 | Subagent audit | Path/journey, API/CLI/MCP, and release QA slices | Passed; findings patched into navigation, API contracts, x402, skill install, and path pages |
-| High-quality content gate | `slop_score.py` and `quality_gate.py` across every `*.mdx` file | Passed: 39 / 39 |
-| Claude Blog audit | `python3 ~/.claude/scripts/analyze_blog.py <file> --format json` across every `*.mdx` file | Completed; findings adapted for Mintlify docs because the upstream rubric scores standalone blog articles |
+| High-quality content gate | `slop_score.py` and `quality_gate.py` across every `*.mdx` file | Passed: 40 / 40 |
+| Claude Blog checks | `scripts/claude-blog-checks.py --exclude reference/claude-blog-checks.mdx --out .tmp/claude-blog-checks/script-summary.json --table .tmp/claude-blog-checks/script-table.md` | Completed: `39 / 39` release MDX scored, all `Rewrite` under the strict blog rubric; see [Claude Blog checks](/reference/claude-blog-checks) |
 | DNS | Cloudflare TXT validation and CNAME | Passed |
 | Custom domain | `https://docs.thespawn.io/` through Mintlify | Passed: HTTP 200 via public DNS target |
 
@@ -33,7 +33,7 @@ Status on June 16, 2026: the docs audit, subagent review pass, article rewrites,
 
 The high-quality-content-writer gate now passes every MDX file in the docs tree. That includes API references, CLI guides, path pages, builder tutorials, payment pages, MCP pages, and operations reference pages.
 
-Claude Blog was still useful as an audit pass, but its raw scores stay low because `analyze_blog.py` expects long-form blog articles with blog-specific schema, authorship, and standalone narrative structure. These docs are task pages, API references, and Mintlify navigation pages. The applied gate is therefore: use Claude Blog findings for structure and specificity, then require high-quality-content-writer plus docs-specific checks before release.
+Claude Blog was still useful as an audit pass, but its raw scores failed because `analyze_blog.py` expects long-form blog articles with blog-specific schema, authorship, images, and standalone narrative structure. These docs are task pages, API references, and Mintlify navigation pages. The applied gate is therefore: record the Claude Blog failure signal, use its findings for structure and specificity, then require high-quality-content-writer plus docs-specific checks before release.
 
 The subagent review found and fixed release blockers across three slices:
 
